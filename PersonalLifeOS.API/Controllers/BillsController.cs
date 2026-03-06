@@ -2,14 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalLifeOS.Application.DTOs;
 using PersonalLifeOS.Infrastructure.Services;
-using System.Security.Claims;
 
 namespace PersonalLifeOS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class BillsController : ControllerBase
+public class BillsController : BaseApiController
 {
     private readonly BillService _billService;
 
@@ -154,11 +153,4 @@ public class BillsController : ControllerBase
         ReminderDaysBefore = b.ReminderDaysBefore
     };
 
-    private string GetCurrentUserId()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            throw new UnauthorizedAccessException("User ID not found in token");
-        return userId;
-    }
 }

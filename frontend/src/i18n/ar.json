@@ -28,6 +28,9 @@
   },
   "dashboard": {
     "title": "لوحة التحكم",
+    "goodMorning": "صباح الخير",
+    "goodAfternoon": "مساء الخير",
+    "goodEvening": "مساء الخير",
     "totalTasks": "إجمالي المهام",
     "completed": "مكتملة",
     "pending": "معلّقة",

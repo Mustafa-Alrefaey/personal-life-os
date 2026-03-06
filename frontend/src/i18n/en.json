@@ -28,6 +28,9 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "goodMorning": "Good morning",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening",
     "totalTasks": "Total Tasks",
     "completed": "Completed",
     "pending": "Pending",

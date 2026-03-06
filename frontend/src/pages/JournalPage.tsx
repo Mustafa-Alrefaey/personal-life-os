@@ -65,7 +65,15 @@ export default function JournalPage() {
             {t('journal.entries_count', { count: entries.length })}
           </p>
         </div>
-        {!showForm && (
+        {showForm ? (
+          <button
+            onClick={handleCancel}
+            className="px-4 py-2 rounded-lg text-sm font-semibold"
+            style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}
+          >
+            {t('journal.cancel')}
+          </button>
+        ) : (
           <button
             onClick={() => setShowForm(true)}
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white"

@@ -2,14 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalLifeOS.Application.DTOs;
 using PersonalLifeOS.Infrastructure.Services;
-using System.Security.Claims;
 
 namespace PersonalLifeOS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class ReceiptsController : ControllerBase
+public class ReceiptsController : BaseApiController
 {
     private readonly ReceiptService _receiptService;
 
@@ -164,11 +163,4 @@ public class ReceiptsController : ControllerBase
         CreatedDate = r.CreatedDate
     };
 
-    private string GetCurrentUserId()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            throw new UnauthorizedAccessException("User ID not found in token");
-        return userId;
-    }
 }

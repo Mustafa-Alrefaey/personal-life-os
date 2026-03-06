@@ -2,14 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalLifeOS.Application.DTOs;
 using PersonalLifeOS.Infrastructure.Services;
-using System.Security.Claims;
 
 namespace PersonalLifeOS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class DashboardController : ControllerBase
+public class DashboardController : BaseApiController
 {
     private readonly TaskService _taskService;
     private readonly BillService _billService;
@@ -101,11 +100,4 @@ public class DashboardController : ControllerBase
         }
     }
 
-    private string GetCurrentUserId()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            throw new UnauthorizedAccessException("User ID not found in token");
-        return userId;
-    }
 }

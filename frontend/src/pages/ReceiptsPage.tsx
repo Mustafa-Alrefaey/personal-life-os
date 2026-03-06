@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { receiptService } from '../services/receipt.service';
+import { API_BASE_URL } from '../services/api';
 import type { Receipt, CreateReceiptRequest } from '../types/receipt';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
@@ -186,7 +187,7 @@ export default function ReceiptsPage() {
               {receipt.imagePath && (
                 <div className="relative group">
                   <img
-                    src={`http://localhost:5207/uploads/receipts/${receipt.imagePath}`}
+                    src={`${API_BASE_URL}/uploads/receipts/${receipt.imagePath}`}
                     alt={receipt.title}
                     className="w-full h-40 object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}

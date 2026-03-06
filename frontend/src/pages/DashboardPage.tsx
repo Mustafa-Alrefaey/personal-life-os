@@ -14,7 +14,10 @@ function StatCard({ label, value, color }: { label: string; value: string | numb
 }
 
 export default function DashboardPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? t('dashboard.goodMorning') : hour < 18 ? t('dashboard.goodAfternoon') : t('dashboard.goodEvening');
+  const todayLabel = new Date().toLocaleDateString(i18n.language, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => dashboardService.getDashboard(),
@@ -43,7 +46,8 @@ export default function DashboardPage() {
     <MainLayout>
       <div className="card rounded-xl px-6 py-4 mb-6"
         style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-        <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('dashboard.title')}</h2>
+        <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{greeting} 👋</h2>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{todayLabel}</p>
       </div>
 
       {/* Task stats */}
