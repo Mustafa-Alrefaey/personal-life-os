@@ -146,7 +146,8 @@
     "entries_count": "{{count}} entries",
     "saved": "Entry saved",
     "updated": "Entry updated",
-    "deleted": "Entry deleted"
+    "deleted": "Entry deleted",
+    "duplicateDate": "A journal entry already exists for this date"
   },
   "receipts": {
     "title": "Receipts",

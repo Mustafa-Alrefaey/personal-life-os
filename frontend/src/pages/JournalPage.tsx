@@ -30,7 +30,13 @@ export default function JournalPage() {
   const createMutation = useMutation({
     mutationFn: () => journalService.createJournal({ date: form.date, notes: form.notes }),
     onSuccess: () => { invalidate(); setShowForm(false); setForm({ date: today, notes: '' }); showToast(t('journal.saved'), 'success'); },
-    onError: () => showToast(t('common.error'), 'error'),
+    onError: (error: any) => {
+      if (error?.response?.status === 409) {
+        showToast(t('journal.duplicateDate'), 'error');
+      } else {
+        showToast(t('common.error'), 'error');
+      }
+    },
   });
 
   const updateMutation = useMutation({
