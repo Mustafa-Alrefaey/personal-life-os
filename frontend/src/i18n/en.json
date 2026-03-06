@@ -193,6 +193,27 @@
     "journalEntries": "Journal Entries",
     "receipts": "Receipts"
   },
+  "categories": {
+    "placeholder": "Select category",
+    "work": "Work",
+    "personal": "Personal",
+    "health": "Health",
+    "finance": "Finance",
+    "shopping": "Shopping",
+    "learning": "Learning",
+    "other": "Other",
+    "salary": "Salary",
+    "freelance": "Freelance",
+    "business": "Business",
+    "investment": "Investment",
+    "gift": "Gift",
+    "foodDining": "Food & Dining",
+    "transport": "Transport",
+    "entertainment": "Entertainment",
+    "utilities": "Utilities",
+    "education": "Education",
+    "rent": "Rent"
+  },
   "common": {
     "due": "Due",
     "loading": "Loading…",
@@ -209,6 +230,7 @@
     "saveChanges": "Save Changes",
     "saving": "Saving…",
     "updated": "Updated successfully",
-    "requiredField": "Please fill in all required fields"
+    "requiredField": "Please fill in all required fields",
+    "selectDate": "Select date"
   }
 }

@@ -2,6 +2,7 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
+import { useSidebarStore } from '../../stores/sidebarStore';
 import { DarkModeToggle } from '../ui/DarkModeToggle';
 
 interface MainLayoutProps { children: React.ReactNode }
@@ -204,7 +205,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, toggle } = useSidebarStore();
   const isRTL = i18n.language === 'ar';
 
   const closeMobile = useCallback(() => setSidebarOpen(false), []);
@@ -234,7 +235,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
         {/* Collapse toggle button */}
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={toggle}
           className="sidebar-collapse-btn w-5 h-5 rounded-full flex items-center justify-center shadow-sm"
           style={{
             background: 'var(--bg-surface)',

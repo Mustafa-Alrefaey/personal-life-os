@@ -141,11 +141,18 @@ export default function BillsPage() {
                   className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} />
               </div>
             </div>
-            <button type="submit" disabled={isSaving || !form.dueDate}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-              style={{ background: 'var(--accent)' }}>
-              {isSaving ? <><Spinner size="sm" />{editingBill ? t('common.saving') : t('bills.adding')}</> : editingBill ? t('common.saveChanges') : t('bills.addBill')}
-            </button>
+            <div className="flex justify-end gap-2 pt-1">
+              <button type="button" onClick={closeForm}
+                className="px-4 py-2 rounded-lg text-sm font-semibold"
+                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+                {t('bills.cancel')}
+              </button>
+              <button type="submit" disabled={isSaving || !form.dueDate}
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+                style={{ background: 'var(--accent)' }}>
+                {isSaving ? <><Spinner size="sm" />{editingBill ? t('common.saving') : t('bills.adding')}</> : editingBill ? t('common.saveChanges') : t('bills.addBill')}
+              </button>
+            </div>
           </form>
         </div>
       )}
@@ -163,11 +170,31 @@ export default function BillsPage() {
             const statusColor = bill.statusCode === 'Paid' ? 'var(--success)' : isOverdue ? 'var(--danger)' : 'var(--warning)';
             const statusBg   = bill.statusCode === 'Paid' ? 'var(--success-bg)' : isOverdue ? 'var(--danger-bg)' : 'var(--warning-bg)';
             return (
-              <div key={bill.id} className="interactive-card rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
+              <div key={bill.id} className="interactive-card rounded-xl p-4 sm:p-5 flex gap-3 items-center"
                 style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
+                {/* Checkbox */}
+                <button
+                  onClick={() => { if (bill.statusCode !== 'Paid') { setPayingId(bill.id); payMutation.mutate(bill.id); } }}
+                  disabled={bill.statusCode === 'Paid' || payingId === bill.id}
+                  title={bill.statusCode === 'Paid' ? t('bills.status_paid') : t('bills.pay')}
+                  className="w-5 h-5 rounded shrink-0 flex items-center justify-center border-2 transition-all disabled:cursor-default"
+                  style={{
+                    borderColor: bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--border-default)',
+                    background: bill.statusCode === 'Paid' ? 'var(--success)' : 'transparent',
+                    color: '#fff',
+                  }}
+                  onMouseEnter={(e) => { if (bill.statusCode !== 'Paid') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--success)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--success-bg)'; } }}
+                  onMouseLeave={(e) => { if (bill.statusCode !== 'Paid') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; } }}
+                >
+                  {payingId === bill.id
+                    ? <Spinner size="sm" />
+                    : bill.statusCode === 'Paid'
+                      ? <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
+                      : null}
+                </button>
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{bill.name}</span>
+                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                    <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)', textDecoration: bill.statusCode === 'Paid' ? 'line-through' : 'none', opacity: bill.statusCode === 'Paid' ? 0.6 : 1 }}>{bill.name}</span>
                     <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: statusBg, color: statusColor }}>
                       {statusLabel}
                     </span>
@@ -177,27 +204,18 @@ export default function BillsPage() {
                     {bill.reminderDaysBefore > 0 && ` · ${bill.reminderDaysBefore}d ${t('bills.reminderLabel')}`}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>EGP {bill.amount.toFixed(2)}</span>
-                  <div className="flex gap-2">
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>EGP {bill.amount.toFixed(2)}</span>
+                  <div className="flex gap-1.5">
                     <button
                       onClick={() => startEdit(bill)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                      className="px-2.5 py-1.5 rounded-lg text-xs font-semibold"
                       style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                       {t('bills.edit')}
                     </button>
-                    {bill.statusCode !== 'Paid' && (
-                      <button
-                        onClick={() => { setPayingId(bill.id); payMutation.mutate(bill.id); }}
-                        disabled={payingId === bill.id}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
-                        style={{ background: 'var(--success)' }}>
-                        {payingId === bill.id ? <Spinner size="sm" /> : t('bills.pay')}
-                      </button>
-                    )}
                     <button
                       onClick={() => setDeleteTarget(bill.id)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                      className="px-2.5 py-1.5 rounded-lg text-xs font-semibold"
                       style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
                       {t('bills.delete')}
                     </button>

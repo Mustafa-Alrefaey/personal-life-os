@@ -112,18 +112,18 @@ export default function JournalPage() {
                 placeholder={t('journal.notesPlaceholder')}
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex justify-end gap-2 pt-1">
+              <button type="button" onClick={handleCancel}
+                className="px-4 py-2 rounded-lg text-sm font-semibold"
+                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+                {t('journal.cancel')}
+              </button>
               <button type="submit" disabled={createMutation.isPending || updateMutation.isPending}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
                 style={{ background: 'var(--accent)' }}>
                 {(createMutation.isPending || updateMutation.isPending)
                   ? <><Spinner size="sm" />{t('journal.saving')}</>
                   : editEntry ? t('journal.saveChanges') : t('journal.save')}
-              </button>
-              <button type="button" onClick={handleCancel}
-                className="px-6 py-2.5 rounded-lg text-sm font-semibold"
-                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
-                {t('journal.cancel')}
               </button>
             </div>
           </form>

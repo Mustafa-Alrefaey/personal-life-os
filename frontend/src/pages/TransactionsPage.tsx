@@ -6,6 +6,8 @@ import type { Transaction, CreateTransactionRequest, UpdateTransactionRequest, T
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { AppDatePicker } from '../components/ui/AppDatePicker';
+import { AppSelect } from '../components/ui/AppSelect';
+import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
@@ -138,7 +140,7 @@ export default function TransactionsPage() {
                 <button
                   key={type}
                   type="button"
-                  onClick={() => setForm({ ...form, type })}
+                  onClick={() => setForm({ ...form, type, category: '' })}
                   className="flex-1 py-2 rounded-lg text-sm font-semibold"
                   style={{
                     background: form.type === type ? (type === 'Income' ? 'var(--success)' : 'var(--danger)') : 'var(--bg-subtle)',
@@ -165,11 +167,30 @@ export default function TransactionsPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.category')}</label>
-                <input
-                  type="text" value={form.category ?? ''}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className={inputCls} style={inputStyle} onFocus={focusIn} onBlur={focusOut}
-                  placeholder={t('transactions.categoryPlaceholder')}
+                <AppSelect
+                  value={form.category ?? ''}
+                  onChange={(v) => setForm({ ...form, category: v })}
+                  placeholder={t('categories.placeholder')}
+                  options={form.type === 'Income' ? [
+                    { value: '', label: t('categories.placeholder') },
+                    { value: 'Salary', label: t('categories.salary') },
+                    { value: 'Freelance', label: t('categories.freelance') },
+                    { value: 'Business', label: t('categories.business') },
+                    { value: 'Investment', label: t('categories.investment') },
+                    { value: 'Gift', label: t('categories.gift') },
+                    { value: 'Other', label: t('categories.other') },
+                  ] : [
+                    { value: '', label: t('categories.placeholder') },
+                    { value: 'Food & Dining', label: t('categories.foodDining') },
+                    { value: 'Transport', label: t('categories.transport') },
+                    { value: 'Shopping', label: t('categories.shopping') },
+                    { value: 'Entertainment', label: t('categories.entertainment') },
+                    { value: 'Health', label: t('categories.health') },
+                    { value: 'Utilities', label: t('categories.utilities') },
+                    { value: 'Education', label: t('categories.education') },
+                    { value: 'Rent', label: t('categories.rent') },
+                    { value: 'Other', label: t('categories.other') },
+                  ]}
                 />
               </div>
               <div>
@@ -183,13 +204,18 @@ export default function TransactionsPage() {
               </div>
             </div>
 
-            <button
-              type="submit" disabled={isSaving}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-              style={{ background: 'var(--accent)' }}
-            >
-              {isSaving ? <><Spinner size="sm" />{editingTx ? t('common.saving') : t('transactions.adding')}</> : editingTx ? t('common.saveChanges') : t('transactions.addTransaction')}
-            </button>
+            <div className="flex justify-end gap-2 pt-1">
+              <button type="button" onClick={closeForm}
+                className="px-4 py-2 rounded-lg text-sm font-semibold"
+                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+                {t('common.cancel')}
+              </button>
+              <button type="submit" disabled={isSaving}
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+                style={{ background: 'var(--accent)' }}>
+                {isSaving ? <><Spinner size="sm" />{editingTx ? t('common.saving') : t('transactions.adding')}</> : editingTx ? t('common.saveChanges') : t('transactions.addTransaction')}
+              </button>
+            </div>
           </form>
         </div>
       )}
@@ -237,7 +263,7 @@ export default function TransactionsPage() {
 
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
-                  {tx.category || (tx.type === 'Income' ? t('transactions.income') : t('transactions.expense'))}
+                  {tx.category ? t(CATEGORY_I18N_KEYS[tx.category] ?? tx.category) : (tx.type === 'Income' ? t('transactions.income') : t('transactions.expense'))}
                 </p>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   {new Date(tx.date).toLocaleDateString()}{tx.notes ? ` · ${tx.notes}` : ''}

@@ -193,6 +193,27 @@
     "journalEntries": "تدوينات اليوميات",
     "receipts": "الإيصالات"
   },
+  "categories": {
+    "placeholder": "اختر تصنيفاً",
+    "work": "عمل",
+    "personal": "شخصي",
+    "health": "صحة",
+    "finance": "مالية",
+    "shopping": "تسوق",
+    "learning": "تعلم",
+    "other": "أخرى",
+    "salary": "راتب",
+    "freelance": "عمل حر",
+    "business": "أعمال",
+    "investment": "استثمار",
+    "gift": "هدية",
+    "foodDining": "طعام ومطاعم",
+    "transport": "مواصلات",
+    "entertainment": "ترفيه",
+    "utilities": "مرافق",
+    "education": "تعليم",
+    "rent": "إيجار"
+  },
   "common": {
     "due": "الاستحقاق",
     "loading": "جارٍ التحميل…",
@@ -209,6 +230,7 @@
     "saveChanges": "حفظ التغييرات",
     "saving": "جارٍ الحفظ…",
     "updated": "تمّ التحديث بنجاح",
-    "requiredField": "يرجى ملء جميع الحقول المطلوبة"
+    "requiredField": "يرجى ملء جميع الحقول المطلوبة",
+    "selectDate": "اختر تاريخاً"
   }
 }

@@ -6,6 +6,8 @@ import type { Task, CreateTaskRequest, UpdateTaskRequest } from '../types/task';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { AppDatePicker } from '../components/ui/AppDatePicker';
+import { AppSelect } from '../components/ui/AppSelect';
+import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
@@ -136,15 +138,35 @@ export default function TasksPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.category')}</label>
-                <input type="text" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder={t('tasks.categoryPlaceholder')} />
+                <AppSelect
+                  value={form.category}
+                  onChange={(v) => setForm({ ...form, category: v })}
+                  placeholder={t('categories.placeholder')}
+                  options={[
+                    { value: '', label: t('categories.placeholder') },
+                    { value: 'Work', label: t('categories.work') },
+                    { value: 'Personal', label: t('categories.personal') },
+                    { value: 'Health', label: t('categories.health') },
+                    { value: 'Finance', label: t('categories.finance') },
+                    { value: 'Shopping', label: t('categories.shopping') },
+                    { value: 'Learning', label: t('categories.learning') },
+                    { value: 'Other', label: t('categories.other') },
+                  ]}
+                />
               </div>
             </div>
-            <button type="submit" disabled={isSaving}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-              style={{ background: 'var(--accent)' }}>
-              {isSaving ? <><Spinner size="sm" />{editingTask ? t('common.saving') : t('tasks.creating')}</> : editingTask ? t('common.saveChanges') : t('tasks.createTask')}
-            </button>
+            <div className="flex justify-end gap-2 pt-1">
+              <button type="button" onClick={closeForm}
+                className="px-4 py-2 rounded-lg text-sm font-semibold"
+                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+                {t('tasks.cancel')}
+              </button>
+              <button type="submit" disabled={isSaving}
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+                style={{ background: 'var(--accent)' }}>
+                {isSaving ? <><Spinner size="sm" />{editingTask ? t('common.saving') : t('tasks.creating')}</> : editingTask ? t('common.saveChanges') : t('tasks.createTask')}
+              </button>
+            </div>
           </form>
         </div>
       )}
@@ -158,8 +180,8 @@ export default function TasksPage() {
           <input
             type="text" value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder={t('tasks.search')}
-            className="w-full ps-9 pe-3 py-2 rounded-lg text-sm outline-none transition-all"
-            style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
+            className="w-full rounded-lg text-sm outline-none transition-all"
+            style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)', paddingInlineStart: '2.25rem', paddingInlineEnd: '0.75rem', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
             onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
             onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
           />
@@ -190,21 +212,34 @@ export default function TasksPage() {
       ) : (
         <div className="space-y-2">
           {filtered.map((task) => (
-            <div key={task.id} className="interactive-card rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row gap-4 justify-between items-start"
+            <div key={task.id} className="interactive-card rounded-xl p-4 sm:p-5 flex gap-3 items-start"
               style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
+              {/* Checkbox */}
+              <button
+                onClick={() => { if (task.statusCode !== 'Completed') { setCompletingId(task.id); completeMutation.mutate(task.id); } }}
+                disabled={task.statusCode === 'Completed' || completingId === task.id}
+                title={task.statusCode === 'Completed' ? t('tasks.filterCompleted') : t('tasks.complete')}
+                className="mt-0.5 w-5 h-5 rounded-full shrink-0 flex items-center justify-center border-2 transition-all disabled:cursor-default"
+                style={{
+                  borderColor: task.statusCode === 'Completed' ? 'var(--success)' : 'var(--border-default)',
+                  background: task.statusCode === 'Completed' ? 'var(--success)' : 'transparent',
+                  color: '#fff',
+                }}
+                onMouseEnter={(e) => { if (task.statusCode !== 'Completed') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--success)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--success-bg)'; } }}
+                onMouseLeave={(e) => { if (task.statusCode !== 'Completed') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; } }}
+              >
+                {completingId === task.id
+                  ? <Spinner size="sm" />
+                  : task.statusCode === 'Completed'
+                    ? <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
+                    : null}
+              </button>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{task.title}</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium"
-                    style={{
-                      background: task.statusCode === 'Completed' ? 'var(--success-bg)' : 'var(--accent-light)',
-                      color:      task.statusCode === 'Completed' ? 'var(--success)'    : 'var(--accent)',
-                    }}>
-                    {task.statusCode === 'Completed' ? t('tasks.filterCompleted') : t('tasks.filterPending')}
-                  </span>
+                  <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)', textDecoration: task.statusCode === 'Completed' ? 'line-through' : 'none', opacity: task.statusCode === 'Completed' ? 0.6 : 1 }}>{task.title}</span>
                   {task.category && (
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
-                      {task.category}
+                      {t(CATEGORY_I18N_KEYS[task.category] ?? task.category)}
                     </span>
                   )}
                 </div>
@@ -215,25 +250,16 @@ export default function TasksPage() {
                   </p>
                 )}
               </div>
-              <div className="flex gap-2 shrink-0">
+              <div className="flex gap-1.5 shrink-0">
                 <button
                   onClick={() => startEdit(task)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-semibold"
                   style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                   {t('tasks.edit')}
                 </button>
-                {task.statusCode !== 'Completed' && (
-                  <button
-                    onClick={() => { setCompletingId(task.id); completeMutation.mutate(task.id); }}
-                    disabled={completingId === task.id}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-50"
-                    style={{ background: 'var(--success)' }}>
-                    {completingId === task.id ? <Spinner size="sm" /> : t('tasks.complete')}
-                  </button>
-                )}
                 <button
                   onClick={() => setDeleteTarget(task.id)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-semibold"
                   style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
                   {t('tasks.delete')}
                 </button>

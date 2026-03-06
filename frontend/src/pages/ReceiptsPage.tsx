@@ -7,6 +7,8 @@ import type { Receipt, CreateReceiptRequest } from '../types/receipt';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { AppDatePicker } from '../components/ui/AppDatePicker';
+import { AppSelect } from '../components/ui/AppSelect';
+import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
@@ -151,8 +153,22 @@ export default function ReceiptsPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.category')}</label>
-                <input type="text" value={form.category ?? ''} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder={t('receipts.categoryPlaceholder')} />
+                <AppSelect
+                  value={form.category ?? ''}
+                  onChange={(v) => setForm({ ...form, category: v })}
+                  placeholder={t('categories.placeholder')}
+                  options={[
+                    { value: '', label: t('categories.placeholder') },
+                    { value: 'Food & Dining', label: t('categories.foodDining') },
+                    { value: 'Transport', label: t('categories.transport') },
+                    { value: 'Shopping', label: t('categories.shopping') },
+                    { value: 'Entertainment', label: t('categories.entertainment') },
+                    { value: 'Health', label: t('categories.health') },
+                    { value: 'Utilities', label: t('categories.utilities') },
+                    { value: 'Education', label: t('categories.education') },
+                    { value: 'Other', label: t('categories.other') },
+                  ]}
+                />
               </div>
             </div>
             {!editingReceipt && (
@@ -166,11 +182,18 @@ export default function ReceiptsPage() {
                 />
               </div>
             )}
-            <button type="submit" disabled={isSaving || (!editingReceipt && !imageFile)}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-              style={{ background: 'var(--accent)' }}>
-              {isSaving ? <><Spinner size="sm" />{editingReceipt ? t('common.saving') : t('receipts.uploading')}</> : editingReceipt ? t('common.saveChanges') : t('receipts.upload')}
-            </button>
+            <div className="flex justify-end gap-2 pt-1">
+              <button type="button" onClick={closeForm}
+                className="px-4 py-2 rounded-lg text-sm font-semibold"
+                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+                {t('receipts.cancel')}
+              </button>
+              <button type="submit" disabled={isSaving || (!editingReceipt && !imageFile)}
+                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+                style={{ background: 'var(--accent)' }}>
+                {isSaving ? <><Spinner size="sm" />{editingReceipt ? t('common.saving') : t('receipts.uploading')}</> : editingReceipt ? t('common.saveChanges') : t('receipts.upload')}
+              </button>
+            </div>
           </form>
         </div>
       )}
@@ -221,7 +244,7 @@ export default function ReceiptsPage() {
                 <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{new Date(receipt.date).toLocaleDateString()}</p>
                 {receipt.category && (
                   <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
-                    {receipt.category}
+                    {t(CATEGORY_I18N_KEYS[receipt.category] ?? receipt.category)}
                   </span>
                 )}
                 <div className="flex gap-2 mt-3">

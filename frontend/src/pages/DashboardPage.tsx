@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { dashboardService } from '../services/dashboard.service';
+import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader } from '../components/ui/Spinner';
 
@@ -79,7 +80,7 @@ export default function DashboardPage() {
                 <div key={task.id} className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{task.title}</p>
-                    {task.category && <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{task.category}</p>}
+                    {task.category && <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{t(CATEGORY_I18N_KEYS[task.category] ?? task.category)}</p>}
                   </div>
                   <span
                     className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"

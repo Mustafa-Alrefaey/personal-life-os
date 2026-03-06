@@ -1,0 +1,21 @@
+/** Maps the English DB value stored for each category to its i18n key. */
+export const CATEGORY_I18N_KEYS: Record<string, string> = {
+  'Work':          'categories.work',
+  'Personal':      'categories.personal',
+  'Health':        'categories.health',
+  'Finance':       'categories.finance',
+  'Shopping':      'categories.shopping',
+  'Learning':      'categories.learning',
+  'Other':         'categories.other',
+  'Salary':        'categories.salary',
+  'Freelance':     'categories.freelance',
+  'Business':      'categories.business',
+  'Investment':    'categories.investment',
+  'Gift':          'categories.gift',
+  'Food & Dining': 'categories.foodDining',
+  'Transport':     'categories.transport',
+  'Entertainment': 'categories.entertainment',
+  'Utilities':     'categories.utilities',
+  'Education':     'categories.education',
+  'Rent':          'categories.rent',
+};
