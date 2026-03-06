@@ -30,13 +30,7 @@ export default function JournalPage() {
   const createMutation = useMutation({
     mutationFn: () => journalService.createJournal({ date: form.date, notes: form.notes }),
     onSuccess: () => { invalidate(); setShowForm(false); setForm({ date: today, notes: '' }); showToast(t('journal.saved'), 'success'); },
-    onError: (error: any) => {
-      if (error?.response?.status === 409) {
-        showToast(t('journal.duplicateDate'), 'error');
-      } else {
-        showToast(t('common.error'), 'error');
-      }
-    },
+    onError: () => showToast(t('common.error'), 'error'),
   });
 
   const updateMutation = useMutation({
@@ -104,9 +98,9 @@ export default function JournalPage() {
                 required rows={8} value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all resize-y"
-                style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
-                onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+                style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
+                onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
+                onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
                 placeholder={t('journal.notesPlaceholder')}
               />
             </div>

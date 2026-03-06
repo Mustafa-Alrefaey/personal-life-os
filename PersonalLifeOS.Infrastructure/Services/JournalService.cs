@@ -25,24 +25,6 @@ public class JournalService
 
     public async Task<DailyJournal> CreateJournalAsync(CreateJournalDto dto, string userId)
     {
-        // Check if an active entry already exists for this date
-        var active = await _repository.GetByDateAsync(userId, dto.Date.Date);
-        if (active != null)
-        {
-            throw new InvalidOperationException("A journal entry already exists for this date.");
-        }
-
-        // Check if a soft-deleted entry exists for this date and reactivate it
-        var deleted = await _repository.GetByDateIncludeDeletedAsync(userId, dto.Date.Date);
-        if (deleted != null)
-        {
-            deleted.Notes = dto.Notes;
-            deleted.StatusCode = "Active";
-            deleted.UpdatedBy = userId;
-            await _repository.UpdateAsync(deleted);
-            return deleted;
-        }
-
         var journal = new DailyJournal
         {
             Date = dto.Date.Date,

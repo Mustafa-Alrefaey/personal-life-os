@@ -46,7 +46,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Notes).IsRequired();
             entity.Property(e => e.StatusCode).IsRequired().HasMaxLength(20);
             entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
-            entity.HasIndex(e => new { e.UserId, e.Date }).IsUnique().HasFilter("[StatusCode] <> 'Deleted'");
+            entity.HasIndex(e => new { e.UserId, e.Date });
         });
 
         // Receipt configuration

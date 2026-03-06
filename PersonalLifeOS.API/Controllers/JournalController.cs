@@ -69,10 +69,6 @@ public class JournalController : ControllerBase
             return CreatedAtAction(nameof(GetJournalById), new { id = journal.Id },
                 ApiResponse<JournalDto>.SuccessResponse(MapToDto(journal), "Journal entry created successfully"));
         }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ApiResponse<JournalDto>.ErrorResponse(ex.Message, new List<string> { ex.Message }));
-        }
         catch (Exception ex)
         {
             return StatusCode(500, ApiResponse<JournalDto>.ErrorResponse("An error occurred", new List<string> { ex.Message }));

@@ -13,9 +13,9 @@ const today = new Date().toISOString().split('T')[0];
 const emptyForm: CreateReceiptRequest = { title: '', amount: 0, date: today, category: '' };
 
 const inputCls = 'w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all';
-const inputStyle = { background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' };
-const focusIn  = (e: React.FocusEvent<HTMLInputElement>) => (e.target.style.borderColor = 'var(--accent)');
-const focusOut = (e: React.FocusEvent<HTMLInputElement>) => (e.target.style.borderColor = 'var(--border-default)');
+const inputStyle = { background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' };
+const focusIn  = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; };
+const focusOut = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; };
 
 export default function ReceiptsPage() {
   const { t } = useTranslation();
@@ -161,7 +161,7 @@ export default function ReceiptsPage() {
                   ref={fileInputRef} type="file" required accept="image/*"
                   onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
                   className="w-full text-sm rounded-lg px-3 py-2"
-                  style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
+                  style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
                 />
               </div>
             )}

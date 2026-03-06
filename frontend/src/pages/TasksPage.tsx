@@ -12,9 +12,9 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 const emptyTask: CreateTaskRequest = { title: '', description: '', dueDate: '', category: '' };
 
 const inputCls = 'w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all';
-const inputStyle = { background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' };
-const focusIn  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = 'var(--accent)');
-const focusOut = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => (e.target.style.borderColor = 'var(--border-default)');
+const inputStyle = { background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' };
+const focusIn  = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; };
+const focusOut = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; };
 
 export default function TasksPage() {
   const { t } = useTranslation();
@@ -159,9 +159,9 @@ export default function TasksPage() {
             type="text" value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder={t('tasks.search')}
             className="w-full ps-9 pe-3 py-2 rounded-lg text-sm outline-none transition-all"
-            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
-            onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
-            onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+            style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
+            onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
+            onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
           />
         </div>
         <div className="flex gap-1">

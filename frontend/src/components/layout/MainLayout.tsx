@@ -224,7 +224,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
         <aside
           className="sticky top-0 h-screen flex flex-col overflow-hidden"
           style={{
-            background: 'var(--bg-surface)',
+            background: 'var(--bg-sidebar)',
             borderInlineEnd: '1px solid var(--border-subtle)',
             width: '100%',
           }}
@@ -261,7 +261,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
         >
           <aside
             className="h-full flex flex-col mobile-sidebar-panel"
-            style={{ background: 'var(--bg-surface)', width: '224px', flexShrink: 0 }}
+            style={{ background: 'var(--bg-sidebar)', width: '224px', flexShrink: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
             <SidebarInner isCollapsed={false} onNavClick={closeMobile} />
