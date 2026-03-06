@@ -1,0 +1,41 @@
+# ===== .NET / C# =====
+**/bin/
+**/obj/
+*.user
+.vs/
+*.suo
+*.db
+*.db-shm
+*.db-wal
+
+# Uploaded files (receipt images stored locally)
+PersonalLifeOS.API/wwwroot/uploads/
+
+# Sensitive config (keep appsettings.json template, ignore environment-specific overrides)
+appsettings.Development.json
+appsettings.Production.json
+**/secrets.json
+
+# ===== Frontend =====
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# ===== System =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== IDE =====
+.idea/
+*.swp
+*.swo
+
+# ===== Claude Code =====
+.claude/
+
+# ===== Backup / temp files =====
+*.backup
+*.old

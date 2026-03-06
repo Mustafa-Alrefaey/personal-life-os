@@ -1,0 +1,199 @@
+@import "tailwindcss";
+@import "react-datepicker/dist/react-datepicker.css";
+
+@variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens ────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg-base:      #f5f3ef;
+  --bg-surface:   #ffffff;
+  --bg-subtle:    #edeae3;
+  --bg-muted:     #e2ddd6;
+
+  /* Text */
+  --text-primary:   #1a1816;
+  --text-secondary: #4a4540;
+  --text-muted:     #8c867e;
+
+  /* Borders */
+  --border-default: #d8d2c8;
+  --border-subtle:  #e8e3db;
+
+  /* Accent — Claude orange */
+  --accent:         #c96030;
+  --accent-hover:   #b05428;
+  --accent-light:   #fdf0e8;
+
+  /* Semantic — light mode: muted/professional */
+  --success:        #15803d;
+  --success-bg:     #f0fdf4;
+  --warning:        #b45309;
+  --warning-bg:     #fffbeb;
+  --danger:         #b91c1c;
+  --danger-bg:      #fef2f2;
+  --info:           #1d6fa4;
+}
+
+.dark {
+  /* Backgrounds */
+  --bg-base:      #181614;
+  --bg-surface:   #211f1c;
+  --bg-subtle:    #2b2825;
+  --bg-muted:     #363330;
+
+  /* Text */
+  --text-primary:   #ede8e0;
+  --text-secondary: #b0a99f;
+  --text-muted:     #746e67;
+
+  /* Borders */
+  --border-default: #3d3a35;
+  --border-subtle:  #302d2a;
+
+  /* Accent */
+  --accent:         #e07a44;
+  --accent-hover:   #ef8c56;
+  --accent-light:   #2c1a0e;
+
+  /* Semantic — dark mode: lighter for readability */
+  --success:        #4ade80;
+  --success-bg:     #052e16;
+  --warning:        #fbbf24;
+  --warning-bg:     #1c1200;
+  --danger:         #f87171;
+  --danger-bg:      #1f0505;
+  --info:           #60a5fa;
+}
+
+/* ── Base ─────────────────────────────────────────────── */
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Tajawal', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Interactive button states ────────────────────────── */
+button:not(:disabled) {
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.12s;
+}
+button:not(:disabled):hover {
+  filter: brightness(0.88);
+}
+button:not(:disabled):active {
+  transform: scale(0.97);
+  filter: brightness(0.82);
+}
+
+/* ── Card base — shadow lifts cards off the background ── */
+.card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.dark .card {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Interactive list item cards ──────────────────────── */
+.interactive-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.interactive-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  border-color: var(--border-default) !important;
+}
+.dark .interactive-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.dark .interactive-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Custom scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Link transitions ─────────────────────────────────── */
+a { transition: opacity 0.15s, color 0.15s; }
+
+/* ── Page entrance ────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: fadeUp 0.32s ease-out both;
+}
+
+/* ── Sidebar nav label fade on expand ────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.nav-label {
+  animation: fadeIn 0.18s 0.08s ease-out both;
+}
+
+/* ── Mobile sidebar animations ───────────────────────── */
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes panelSlideIn {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes panelSlideInRTL {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.mobile-overlay  { animation: overlayFadeIn 0.2s ease-out both; }
+.mobile-sidebar-panel { animation: panelSlideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
+[dir="rtl"] .mobile-sidebar-panel { animation: panelSlideInRTL 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
+
+/* ── Sidebar collapse toggle button ──────────────────── */
+.sidebar-collapse-btn {
+  position: absolute;
+  top: 4rem;
+  z-index: 20;
+  inset-inline-end: -10px;
+}
+
+/* ── Page frame — max-width boundary ── */
+.page-frame {
+  padding-top: 1.5rem;
+}
+
+/* ── React-datepicker theming ───────────────────────────── */
+.react-datepicker-wrapper { width: 100%; }
+.react-datepicker {
+  font-family: inherit !important;
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+  color: var(--text-primary) !important;
+}
+.react-datepicker__header {
+  background-color: var(--bg-subtle) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+  border-radius: 0.75rem 0.75rem 0 0 !important;
+}
+.react-datepicker__current-month,
+.react-datepicker__day-name { color: var(--text-primary) !important; font-weight: 600; }
+.react-datepicker__day { color: var(--text-primary) !important; border-radius: 0.5rem !important; }
+.react-datepicker__day:hover { background-color: var(--accent-light) !important; color: var(--accent) !important; }
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--accent) !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+.react-datepicker__day--outside-month { color: var(--text-muted) !important; }
+.react-datepicker__navigation-icon::before { border-color: var(--text-secondary) !important; }
+.react-datepicker__triangle { display: none !important; }

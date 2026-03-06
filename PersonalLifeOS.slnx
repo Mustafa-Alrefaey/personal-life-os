@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="PersonalLifeOS.API/PersonalLifeOS.API.csproj" />
+  <Project Path="PersonalLifeOS.Application/PersonalLifeOS.Application.csproj" />
+  <Project Path="PersonalLifeOS.Domain/PersonalLifeOS.Domain.csproj" />
+  <Project Path="PersonalLifeOS.Infrastructure/PersonalLifeOS.Infrastructure.csproj" />
+</Solution>
