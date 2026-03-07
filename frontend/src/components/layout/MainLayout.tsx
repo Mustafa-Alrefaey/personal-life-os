@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
 import { useSidebarStore } from '../../stores/sidebarStore';
+import { useRamadanStore } from '../../stores/ramadanStore';
 import { DarkModeToggle } from '../ui/DarkModeToggle';
 
 interface MainLayoutProps { children: React.ReactNode }
@@ -77,6 +78,7 @@ interface SidebarInnerProps {
 const SidebarInner = memo(function SidebarInner({ isCollapsed, onNavClick }: SidebarInnerProps) {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuthStore();
+  const ramadanEnabled = useRamadanStore((s) => s.enabled);
   const navigate = useNavigate();
   const isRTL = i18n.language === 'ar';
 
@@ -96,11 +98,22 @@ const SidebarInner = memo(function SidebarInner({ isCollapsed, onNavClick }: Sid
           paddingRight: isCollapsed ? 0 : '1rem',
         }}
       >
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold select-none shrink-0"
-          style={{ background: 'var(--accent)' }}
-        >
-          PL
+        <div className="relative shrink-0">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold select-none"
+            style={{ background: 'var(--accent)' }}
+          >
+            PL
+          </div>
+          {ramadanEnabled && (
+            <svg
+              width="13" height="13" viewBox="0 0 24 24" fill="#fbbf24"
+              className="absolute -top-1.5 -end-1.5 pointer-events-none"
+              style={{ filter: 'drop-shadow(0 0 4px rgba(251,191,36,0.7))' }}
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          )}
         </div>
         {!isCollapsed && (
           <span className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>

@@ -122,15 +122,7 @@ export default function ReceiptsPage() {
             {filtered.length} · {t('receipts.total')}: EGP {totalAmount.toFixed(2)}
           </p>
         </div>
-        {showForm ? (
-          <button
-            onClick={closeForm}
-            className="px-4 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}
-          >
-            {t('receipts.cancel')}
-          </button>
-        ) : (
+        {!showForm && (
           <button
             onClick={() => setShowForm(true)}
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white"

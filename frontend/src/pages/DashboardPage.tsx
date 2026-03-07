@@ -4,6 +4,7 @@ import { dashboardService } from '../services/dashboard.service';
 import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader } from '../components/ui/Spinner';
+import { RamadanBanner } from '../components/ui/RamadanBanner';
 
 function StatCard({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
@@ -45,6 +46,7 @@ export default function DashboardPage() {
 
   return (
     <MainLayout>
+      <RamadanBanner />
       <div className="card rounded-xl px-6 py-4 mb-6"
         style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
         <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{greeting} 👋</h2>

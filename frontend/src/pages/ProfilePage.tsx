@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { MainLayout } from '../components/layout/MainLayout';
 import { useAuthStore } from '../stores/authStore';
 import { useThemeStore } from '../stores/themeStore';
+import { useRamadanStore } from '../stores/ramadanStore';
 import { dashboardService } from '../services/dashboard.service';
 
 export default function ProfilePage() {
   const { t, i18n } = useTranslation();
   const user = useAuthStore((state) => state.user);
   const { isDarkMode, toggleTheme } = useThemeStore();
+  const { enabled: ramadanEnabled, setEnabled: setRamadan } = useRamadanStore();
   const isRTL = i18n.language === 'ar';
 
   const { data } = useQuery({ queryKey: ['dashboard'], queryFn: () => dashboardService.getDashboard() });
@@ -73,6 +75,28 @@ export default function ProfilePage() {
                 className="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
                 style={{
                   transform: isDarkMode
+                    ? (isRTL ? 'translateX(-24px)' : 'translateX(24px)')
+                    : (isRTL ? 'translateX(-4px)' : 'translateX(4px)'),
+                }}
+              />
+            </button>
+          </div>
+
+          {/* Ramadan theme */}
+          <div className="flex items-center justify-between py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{t('profile.ramadanMode')}</p>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('profile.ramadanModeDesc')}</p>
+            </div>
+            <button
+              onClick={() => setRamadan(!ramadanEnabled)}
+              className="relative inline-flex h-6 w-11 items-center rounded-full"
+              style={{ background: ramadanEnabled ? '#c8881c' : 'var(--bg-muted)' }}
+            >
+              <span
+                className="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform duration-200"
+                style={{
+                  transform: ramadanEnabled
                     ? (isRTL ? 'translateX(-24px)' : 'translateX(24px)')
                     : (isRTL ? 'translateX(-4px)' : 'translateX(4px)'),
                 }}

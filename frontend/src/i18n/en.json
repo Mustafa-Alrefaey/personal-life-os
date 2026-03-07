@@ -212,7 +212,9 @@
     "totalTasks": "Total Tasks",
     "completed": "Completed",
     "journalEntries": "Journal Entries",
-    "receipts": "Receipts"
+    "receipts": "Receipts",
+    "ramadanMode": "Ramadan Theme",
+    "ramadanModeDesc": "Enable Ramadan visual touches across the app"
   },
   "categories": {
     "placeholder": "Select category",
@@ -256,5 +258,10 @@
     "dateFrom": "From",
     "dateTo": "To",
     "clearFilters": "Clear"
+  },
+  "ramadan": {
+    "greeting": "Ramadan Kareem",
+    "subtext": "Wishing you a blessed and peaceful holy month.",
+    "dismiss": "Dismiss"
   }
 }

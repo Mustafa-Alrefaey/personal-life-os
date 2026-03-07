@@ -108,15 +108,7 @@ export default function TasksPage() {
           <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('tasks.title')}</h2>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{tasks.length} {t('tasks.total')}</p>
         </div>
-        {showForm ? (
-          <button
-            onClick={closeForm}
-            className="px-4 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}
-          >
-            {t('tasks.cancel')}
-          </button>
-        ) : (
+        {!showForm && (
           <button
             onClick={() => setShowForm(true)}
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white"

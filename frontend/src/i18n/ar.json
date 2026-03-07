@@ -212,7 +212,9 @@
     "totalTasks": "إجمالي المهام",
     "completed": "مكتملة",
     "journalEntries": "تدوينات اليوميات",
-    "receipts": "الإيصالات"
+    "receipts": "الإيصالات",
+    "ramadanMode": "مظهر رمضان",
+    "ramadanModeDesc": "تفعيل اللمسات البصرية الرمضانية في جميع أنحاء التطبيق"
   },
   "categories": {
     "placeholder": "اختر تصنيفاً",
@@ -256,5 +258,10 @@
     "dateFrom": "من",
     "dateTo": "إلى",
     "clearFilters": "مسح"
+  },
+  "ramadan": {
+    "greeting": "رمضان كريم",
+    "subtext": "نتمنى لكم شهراً مباركاً وهادئاً مليئاً بالخير والعطاء.",
+    "dismiss": "إغلاق"
   }
 }

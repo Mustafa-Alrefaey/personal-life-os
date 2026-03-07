@@ -107,15 +107,7 @@ export default function BillsPage() {
             {t('bills.pending_count', { count: pendingCount })} · {t('bills.paid_count', { count: paidCount })}
           </p>
         </div>
-        {showForm ? (
-          <button
-            onClick={closeForm}
-            className="px-4 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}
-          >
-            {t('bills.cancel')}
-          </button>
-        ) : (
+        {!showForm && (
           <button
             onClick={() => setShowForm(true)}
             className="px-4 py-2 rounded-lg text-sm font-semibold text-white"

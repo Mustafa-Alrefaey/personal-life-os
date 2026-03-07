@@ -108,6 +108,50 @@
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Ramadan theme — light mode (warm golden amber)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-ramadan="true"] {
+  --accent:         #c8881c;
+  --accent-hover:   #b47718;
+  --accent-active:  #a06812;
+  --accent-light:   #fef5e2;
+  --border-focus:   #c8881c;
+  --bg-base:        #f5f0e3;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Ramadan theme — dark mode (deep midnight indigo + gold)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-ramadan="true"].dark {
+  --bg-base:        #070520;
+  --bg-surface:     #0d0928;
+  --bg-subtle:      #150e38;
+  --bg-muted:       #1c1445;
+  --bg-input:       #100c26;
+  --bg-sidebar:     #090620;
+  --border-default: rgba(155, 120, 230, 0.22);
+  --border-subtle:  rgba(155, 120, 230, 0.12);
+  --border-focus:   #d4a820;
+  --accent:         #d4a820;
+  --accent-hover:   #bf9318;
+  --accent-active:  #a88012;
+  --accent-light:   rgba(212, 168, 32, 0.12);
+}
+
+/* Subtle nebula body glow in dark Ramadan */
+[data-ramadan="true"].dark body {
+  background-image:
+    radial-gradient(ellipse at 25% 0%,   rgba(80,  40, 220, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(100, 20, 180, 0.06) 0%, transparent 50%);
+}
+
+/* Cards get a faint gold outline in dark Ramadan */
+[data-ramadan="true"].dark .card,
+[data-ramadan="true"].dark .interactive-card {
+  box-shadow: 0 0 0 1px rgba(212, 168, 32, 0.09);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Base
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 *, *::before, *::after { box-sizing: border-box; }
@@ -517,4 +561,15 @@ a { transition: opacity 0.15s, color 0.15s; }
   color: var(--text-muted) !important;
   opacity: 0.35;
   cursor: not-allowed !important;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Ramadan banner — twinkling stars
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@keyframes ramadanTwinkle {
+  0%, 100% { opacity: 0.85; r: var(--star-r, 1); }
+  50%       { opacity: 0.15; }
+}
+.ramadan-star {
+  animation: ramadanTwinkle 2.4s ease-in-out infinite;
 }
