@@ -26,7 +26,7 @@ export default function BillsPage() {
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [payingId, setPayingId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Paid'>('All');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'PENDING' | 'Paid'>('All');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
@@ -84,7 +84,7 @@ export default function BillsPage() {
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const bills = data?.data ?? [];
-  const pendingCount = bills.filter((b) => b.statusCode === 'Pending').length;
+  const pendingCount = bills.filter((b) => b.statusCode === 'PENDING').length;
   const paidCount    = bills.filter((b) => b.statusCode === 'Paid').length;
   const filtered = bills
     .filter((b) => statusFilter === 'All' || b.statusCode === statusFilter)
@@ -180,14 +180,14 @@ export default function BillsPage() {
             />
           </div>
           <div className="flex gap-1">
-            {(['All', 'Pending', 'Paid'] as const).map((s) => (
+            {(['All', 'PENDING', 'Paid'] as const).map((s) => (
               <button key={s} onClick={() => setStatusFilter(s)}
                 className="px-3 py-2 rounded-lg text-xs font-semibold"
                 style={{
                   background: statusFilter === s ? 'var(--accent-light)' : 'var(--bg-subtle)',
                   color: statusFilter === s ? 'var(--accent)' : 'var(--text-secondary)',
                 }}>
-                {s === 'All' ? t('bills.filterAll') : s === 'Pending' ? t('bills.filterPending') : t('bills.filterPaid')}
+                {s === 'All' ? t('bills.filterAll') : s === 'PENDING' ? t('bills.filterPending') : t('bills.filterPaid')}
               </button>
             ))}
           </div>
@@ -219,7 +219,7 @@ export default function BillsPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map((bill) => {
-            const isOverdue = bill.statusCode === 'Pending' && new Date(bill.dueDate) < new Date();
+            const isOverdue = bill.statusCode === 'PENDING' && new Date(bill.dueDate) < new Date();
             const statusLabel = bill.statusCode === 'Paid' ? t('bills.status_paid') : isOverdue ? t('bills.status_overdue') : t('bills.status_pending');
             const statusColor = bill.statusCode === 'Paid' ? 'var(--success)' : isOverdue ? 'var(--danger)' : 'var(--warning)';
             const statusBg   = bill.statusCode === 'Paid' ? 'var(--success-bg)' : isOverdue ? 'var(--danger-bg)' : 'var(--warning-bg)';

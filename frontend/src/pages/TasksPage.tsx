@@ -26,7 +26,7 @@ export default function TasksPage() {
   const [form, setForm] = useState<CreateTaskRequest>(emptyTask);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Completed'>('All');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'PENDING' | 'COMPLETED'>('All');
   const [priorityFilter, setPriorityFilter] = useState<string>('All');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -206,14 +206,14 @@ export default function TasksPage() {
             />
           </div>
           <div className="flex gap-1">
-            {(['All', 'Pending', 'Completed'] as const).map((s) => (
+            {(['All', 'PENDING', 'COMPLETED'] as const).map((s) => (
               <button key={s} onClick={() => setStatusFilter(s)}
                 className="px-3 py-2 rounded-lg text-xs font-semibold"
                 style={{
                   background: statusFilter === s ? 'var(--accent-light)' : 'var(--bg-subtle)',
                   color: statusFilter === s ? 'var(--accent)' : 'var(--text-secondary)',
                 }}>
-                {s === 'All' ? t('tasks.filterAll') : s === 'Pending' ? t('tasks.filterPending') : t('tasks.filterCompleted')}
+                {s === 'All' ? t('tasks.filterAll') : s === 'PENDING' ? t('tasks.filterPending') : t('tasks.filterCompleted')}
               </button>
             ))}
           </div>
@@ -264,12 +264,12 @@ export default function TasksPage() {
               {/* Checkbox */}
               <button
                 onClick={() => { if (task.statusCode !== 'Completed') { setCompletingId(task.id); completeMutation.mutate(task.id); } }}
-                disabled={task.statusCode === 'Completed' || completingId === task.id}
-                title={task.statusCode === 'Completed' ? t('tasks.filterCompleted') : t('tasks.complete')}
+                disabled={task.statusCode === 'COMPLETED' || completingId === task.id}
+                title={task.statusCode === 'COMPLETED' ? t('tasks.filterCompleted') : t('tasks.complete')}
                 className="mt-0.5 w-5 h-5 rounded-full shrink-0 flex items-center justify-center border-2 transition-all disabled:cursor-default"
                 style={{
-                  borderColor: task.statusCode === 'Completed' ? 'var(--success)' : 'var(--border-default)',
-                  background: task.statusCode === 'Completed' ? 'var(--success)' : 'transparent',
+                  borderColor: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'var(--border-default)',
+                  background: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'transparent',
                   color: '#fff',
                 }}
                 onMouseEnter={(e) => { if (task.statusCode !== 'Completed') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--success)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--success-bg)'; } }}
@@ -277,13 +277,13 @@ export default function TasksPage() {
               >
                 {completingId === task.id
                   ? <Spinner size="sm" />
-                  : task.statusCode === 'Completed'
+                  : task.statusCode === 'COMPLETED'
                     ? <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
                     : null}
               </button>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)', textDecoration: task.statusCode === 'Completed' ? 'line-through' : 'none', opacity: task.statusCode === 'Completed' ? 0.6 : 1 }}>{task.title}</span>
+                  <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)', textDecoration: task.statusCode === 'COMPLETED' ? 'line-through' : 'none', opacity: task.statusCode === 'COMPLETED' ? 0.6 : 1 }}>{task.title}</span>
                   {task.category && (
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
                       {t(CATEGORY_I18N_KEYS[task.category] ?? task.category)}

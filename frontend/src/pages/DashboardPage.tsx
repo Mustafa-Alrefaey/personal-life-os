@@ -87,11 +87,11 @@ export default function DashboardPage() {
                   <span
                     className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
                     style={{
-                      background: task.statusCode === 'Completed' ? 'var(--success-bg)' : 'var(--accent-light)',
-                      color:      task.statusCode === 'Completed' ? 'var(--success)'    : 'var(--accent)',
+                      background: task.statusCode === 'COMPLETED' ? 'var(--success-bg)' : 'var(--accent-light)',
+                      color:      task.statusCode === 'COMPLETED' ? 'var(--success)'    : 'var(--accent)',
                     }}
                   >
-                    {task.statusCode === 'Completed' ? t('tasks.filterCompleted') : t('tasks.filterPending')}
+                    {task.statusCode === 'COMPLETED' ? t('tasks.filterCompleted') : t('tasks.filterPending')}
                   </span>
                 </div>
               ))}
