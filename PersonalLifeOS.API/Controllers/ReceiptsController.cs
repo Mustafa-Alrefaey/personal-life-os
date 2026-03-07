@@ -24,13 +24,9 @@ public class ReceiptsController : BaseApiController
         {
             var userId = GetCurrentUserId();
             var receipts = await _receiptService.GetAllReceiptsAsync(userId);
-            var dtos = receipts.Select(MapToDto).ToList();
-            return Ok(ApiResponse<List<ReceiptDto>>.SuccessResponse(dtos, $"Retrieved {dtos.Count} receipts"));
+            return Ok(ApiResponse<List<ReceiptDto>>.SuccessResponse(receipts, $"Retrieved {receipts.Count} receipts"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<List<ReceiptDto>>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<List<ReceiptDto>>(ex); }
     }
 
     [HttpGet("{id}")]
@@ -39,17 +35,10 @@ public class ReceiptsController : BaseApiController
         try
         {
             var userId = GetCurrentUserId();
-            var receipt = await _receiptService.GetReceiptByIdAsync(id);
-            if (receipt == null)
-                return NotFound(ApiResponse<ReceiptDto>.ErrorResponse("Receipt not found", new List<string> { $"Receipt with ID {id} does not exist" }));
-            if (receipt.UserId != userId)
-                return Forbid();
-            return Ok(ApiResponse<ReceiptDto>.SuccessResponse(MapToDto(receipt), "Receipt retrieved successfully"));
+            var receipt = await _receiptService.GetReceiptByIdAsync(id, userId);
+            return Ok(ApiResponse<ReceiptDto>.SuccessResponse(receipt, "Receipt retrieved successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<ReceiptDto>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<ReceiptDto>(ex); }
     }
 
     [HttpPost]
@@ -63,19 +52,17 @@ public class ReceiptsController : BaseApiController
         }
 
         if (imageFile == null || imageFile.Length == 0)
-            return BadRequest(ApiResponse<ReceiptDto>.ErrorResponse("Validation failed", new List<string> { "An image file is required" }));
+            return BadRequest(ApiResponse<ReceiptDto>.ErrorResponse("Validation failed",
+                new List<string> { "An image file is required" }));
 
         try
         {
             var userId = GetCurrentUserId();
             var receipt = await _receiptService.CreateReceiptAsync(dto, imageFile, userId);
             return CreatedAtAction(nameof(GetReceiptById), new { id = receipt.Id },
-                ApiResponse<ReceiptDto>.SuccessResponse(MapToDto(receipt), "Receipt created successfully"));
+                ApiResponse<ReceiptDto>.SuccessResponse(receipt, "Receipt created successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<ReceiptDto>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<ReceiptDto>(ex); }
     }
 
     [HttpPut("{id}")]
@@ -88,23 +75,16 @@ public class ReceiptsController : BaseApiController
         }
 
         if (id != dto.Id)
-            return BadRequest(ApiResponse<object>.ErrorResponse("ID mismatch", new List<string> { "The ID in the URL does not match the ID in the request body" }));
+            return BadRequest(ApiResponse<object>.ErrorResponse("ID mismatch",
+                new List<string> { "The ID in the URL does not match the ID in the request body" }));
 
         try
         {
             var userId = GetCurrentUserId();
-            var existing = await _receiptService.GetReceiptByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Receipt not found", new List<string> { $"Receipt with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
             await _receiptService.UpdateReceiptAsync(dto, userId);
             return Ok(ApiResponse<object>.SuccessResponse(null, "Receipt updated successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<object>(ex); }
     }
 
     [HttpPut("{id}/image")]
@@ -112,23 +92,16 @@ public class ReceiptsController : BaseApiController
     public async Task<ActionResult<ApiResponse<object>>> UpdateReceiptImage(int id, IFormFile imageFile)
     {
         if (imageFile == null || imageFile.Length == 0)
-            return BadRequest(ApiResponse<object>.ErrorResponse("Validation failed", new List<string> { "An image file is required" }));
+            return BadRequest(ApiResponse<object>.ErrorResponse("Validation failed",
+                new List<string> { "An image file is required" }));
 
         try
         {
             var userId = GetCurrentUserId();
-            var existing = await _receiptService.GetReceiptByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Receipt not found", new List<string> { $"Receipt with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
             await _receiptService.UpdateReceiptImageAsync(id, imageFile, userId);
             return Ok(ApiResponse<object>.SuccessResponse(null, "Receipt image updated successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<object>(ex); }
     }
 
     [HttpDelete("{id}")]
@@ -137,30 +110,9 @@ public class ReceiptsController : BaseApiController
         try
         {
             var userId = GetCurrentUserId();
-            var existing = await _receiptService.GetReceiptByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Receipt not found", new List<string> { $"Receipt with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
             await _receiptService.DeleteReceiptAsync(id, userId);
             return Ok(ApiResponse<object>.SuccessResponse(null, "Receipt deleted successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<object>(ex); }
     }
-
-    private static ReceiptDto MapToDto(Domain.Entities.Receipt r) => new()
-    {
-        Id = r.Id,
-        Title = r.Title,
-        Amount = r.Amount,
-        Date = r.Date,
-        Category = r.Category,
-        ImagePath = r.ImagePath,
-        StatusCode = r.StatusCode,
-        CreatedDate = r.CreatedDate
-    };
-
 }

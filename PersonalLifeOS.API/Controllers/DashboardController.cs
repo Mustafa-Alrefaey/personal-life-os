@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalLifeOS.Application.DTOs;
-using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Services;
 
 namespace PersonalLifeOS.API.Controllers;
@@ -11,24 +10,11 @@ namespace PersonalLifeOS.API.Controllers;
 [Authorize]
 public class DashboardController : BaseApiController
 {
-    private readonly TaskService _taskService;
-    private readonly BillService _billService;
-    private readonly TransactionService _transactionService;
-    private readonly JournalService _journalService;
-    private readonly ReceiptService _receiptService;
+    private readonly DashboardService _dashboardService;
 
-    public DashboardController(
-        TaskService taskService,
-        BillService billService,
-        TransactionService transactionService,
-        JournalService journalService,
-        ReceiptService receiptService)
+    public DashboardController(DashboardService dashboardService)
     {
-        _taskService = taskService;
-        _billService = billService;
-        _transactionService = transactionService;
-        _journalService = journalService;
-        _receiptService = receiptService;
+        _dashboardService = dashboardService;
     }
 
     [HttpGet]
@@ -37,68 +23,9 @@ public class DashboardController : BaseApiController
         try
         {
             var userId = GetCurrentUserId();
-
-            // Run sequentially: all repositories share the same scoped DbContext instance.
-            // Task.WhenAll on the same DbContext causes a concurrency exception.
-            var tasks        = await _taskService.GetAllTasksAsync(userId);
-            var bills        = await _billService.GetAllBillsAsync(userId);
-            var transactions = await _transactionService.GetAllTransactionsAsync(userId);
-            var journals     = await _journalService.GetAllJournalsAsync(userId);
-            var receipts     = await _receiptService.GetAllReceiptsAsync(userId);
-
-            var completedTasks = tasks.Count(t => t.StatusCode == GeneralStatuses.COMPLETED);
-            var pendingTasks   = tasks.Count(t => t.StatusCode == GeneralStatuses.PENDING);
-            var overdueTasks   = tasks.Count(t =>
-                t.StatusCode == GeneralStatuses.PENDING &&
-                t.DueDate.HasValue &&
-                t.DueDate.Value.Date < DateTime.Now.Date);
-
-            var totalIncome   = transactions.Where(t => t.Type == Domain.Enums.TransactionType.Income).Sum(t => t.Amount);
-            var totalExpenses = transactions.Where(t => t.Type == Domain.Enums.TransactionType.Expense).Sum(t => t.Amount);
-
-            var recentTasks = tasks
-                .OrderByDescending(t => t.CreatedDate).Take(5)
-                .Select(t => new TaskDto
-                {
-                    Id = t.Id, Title = t.Title, Description = t.Description,
-                    DueDate = t.DueDate, Category = t.Category, Priority = t.Priority,
-                    StatusCode = t.StatusCode, CreatedDate = t.CreatedDate
-                }).ToList();
-
-            var upcomingBills = bills
-                .Where(b => b.StatusCode == GeneralStatuses.PENDING).OrderBy(b => b.DueDate).Take(5)
-                .Select(b => new BillDto
-                {
-                    Id = b.Id, Name = b.Name, Amount = b.Amount,
-                    DueDate = b.DueDate, StatusCode = b.StatusCode,
-                    ReminderDaysBefore = b.ReminderDaysBefore
-                }).ToList();
-
-            var dto = new DashboardDto
-            {
-                TotalTasks        = tasks.Count,
-                CompletedTasks    = completedTasks,
-                PendingTasks      = pendingTasks,
-                OverdueTasks      = overdueTasks,
-                TotalJournalEntries = journals.Count,
-                TotalReceipts     = receipts.Count,
-                TotalBills        = bills.Count,
-                UnpaidBills       = bills.Count(b => b.StatusCode == GeneralStatuses.PENDING),
-                TotalIncome       = totalIncome,
-                TotalExpenses     = totalExpenses,
-                NetBalance        = totalIncome - totalExpenses,
-                RecentTasks       = recentTasks,
-                UpcomingBills     = upcomingBills
-            };
-
+            var dto = await _dashboardService.GetDashboardAsync(userId);
             return Ok(ApiResponse<DashboardDto>.SuccessResponse(dto, "Dashboard data retrieved successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<DashboardDto>.ErrorResponse(
-                "An error occurred while retrieving dashboard data",
-                new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<DashboardDto>(ex); }
     }
-
 }

@@ -24,13 +24,9 @@ public class BillsController : BaseApiController
         {
             var userId = GetCurrentUserId();
             var bills = await _billService.GetAllBillsAsync(userId);
-            var dtos = bills.Select(MapToDto).ToList();
-            return Ok(ApiResponse<List<BillDto>>.SuccessResponse(dtos, $"Retrieved {dtos.Count} bills"));
+            return Ok(ApiResponse<List<BillDto>>.SuccessResponse(bills, $"Retrieved {bills.Count} bills"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<List<BillDto>>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<List<BillDto>>(ex); }
     }
 
     [HttpGet("{id}")]
@@ -39,17 +35,10 @@ public class BillsController : BaseApiController
         try
         {
             var userId = GetCurrentUserId();
-            var bill = await _billService.GetBillByIdAsync(id);
-            if (bill == null)
-                return NotFound(ApiResponse<BillDto>.ErrorResponse("Bill not found", new List<string> { $"Bill with ID {id} does not exist" }));
-            if (bill.UserId != userId)
-                return Forbid();
-            return Ok(ApiResponse<BillDto>.SuccessResponse(MapToDto(bill), "Bill retrieved successfully"));
+            var bill = await _billService.GetBillByIdAsync(id, userId);
+            return Ok(ApiResponse<BillDto>.SuccessResponse(bill, "Bill retrieved successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<BillDto>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<BillDto>(ex); }
     }
 
     [HttpPost]
@@ -66,12 +55,9 @@ public class BillsController : BaseApiController
             var userId = GetCurrentUserId();
             var bill = await _billService.CreateBillAsync(dto, userId);
             return CreatedAtAction(nameof(GetBillById), new { id = bill.Id },
-                ApiResponse<BillDto>.SuccessResponse(MapToDto(bill), "Bill created successfully"));
+                ApiResponse<BillDto>.SuccessResponse(bill, "Bill created successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<BillDto>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<BillDto>(ex); }
     }
 
     [HttpPut("{id}")]
@@ -84,43 +70,16 @@ public class BillsController : BaseApiController
         }
 
         if (id != dto.Id)
-            return BadRequest(ApiResponse<object>.ErrorResponse("ID mismatch", new List<string> { "The ID in the URL does not match the ID in the request body" }));
+            return BadRequest(ApiResponse<object>.ErrorResponse("ID mismatch",
+                new List<string> { "The ID in the URL does not match the ID in the request body" }));
 
         try
         {
             var userId = GetCurrentUserId();
-            var existing = await _billService.GetBillByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Bill not found", new List<string> { $"Bill with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
             await _billService.UpdateBillAsync(dto, userId);
             return Ok(ApiResponse<object>.SuccessResponse(null, "Bill updated successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
-    }
-
-    [HttpPost("{id}/unpay")]
-    public async Task<ActionResult<ApiResponse<object>>> MarkAsUnpaid(int id)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var existing = await _billService.GetBillByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Bill not found", new List<string> { $"Bill with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
-            await _billService.MarkBillAsUnpaidAsync(id, userId);
-            return Ok(ApiResponse<object>.SuccessResponse(null, "Bill marked as unpaid"));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<object>(ex); }
     }
 
     [HttpPost("{id}/pay")]
@@ -129,18 +88,22 @@ public class BillsController : BaseApiController
         try
         {
             var userId = GetCurrentUserId();
-            var existing = await _billService.GetBillByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Bill not found", new List<string> { $"Bill with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
             await _billService.MarkBillAsPaidAsync(id, userId);
             return Ok(ApiResponse<object>.SuccessResponse(null, "Bill marked as paid"));
         }
-        catch (Exception ex)
+        catch (Exception ex) { return HandleException<object>(ex); }
+    }
+
+    [HttpPost("{id}/unpay")]
+    public async Task<ActionResult<ApiResponse<object>>> MarkAsUnpaid(int id)
+    {
+        try
         {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
+            var userId = GetCurrentUserId();
+            await _billService.MarkBillAsUnpaidAsync(id, userId);
+            return Ok(ApiResponse<object>.SuccessResponse(null, "Bill marked as unpaid"));
         }
+        catch (Exception ex) { return HandleException<object>(ex); }
     }
 
     [HttpDelete("{id}")]
@@ -149,28 +112,9 @@ public class BillsController : BaseApiController
         try
         {
             var userId = GetCurrentUserId();
-            var existing = await _billService.GetBillByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Bill not found", new List<string> { $"Bill with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
             await _billService.DeleteBillAsync(id, userId);
             return Ok(ApiResponse<object>.SuccessResponse(null, "Bill deleted successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<object>(ex); }
     }
-
-    private static BillDto MapToDto(Domain.Entities.Bill b) => new()
-    {
-        Id = b.Id,
-        Name = b.Name,
-        Amount = b.Amount,
-        DueDate = b.DueDate,
-        StatusCode = b.StatusCode,
-        ReminderDaysBefore = b.ReminderDaysBefore
-    };
-
 }

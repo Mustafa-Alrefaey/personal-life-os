@@ -14,22 +14,22 @@ public class TransactionService
         _repository = repository;
     }
 
-    public async Task<List<Transaction>> GetAllTransactionsAsync(string userId)
+    public async Task<List<TransactionDto>> GetAllTransactionsAsync(string userId)
     {
-        return await _repository.GetAllByUserIdAsync(userId);
+        var transactions = await _repository.GetAllByUserIdAsync(userId);
+        return transactions.Select(MapToDto).ToList();
     }
 
-    public async Task<Transaction?> GetTransactionByIdAsync(int id)
+    public async Task<TransactionDto> GetTransactionByIdAsync(int id, string userId)
     {
-        return await _repository.GetByIdAsync(id);
+        var transaction = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Transaction with ID {id} does not exist");
+        if (transaction.UserId != userId)
+            throw new UnauthorizedAccessException();
+        return MapToDto(transaction);
     }
 
-    public async Task<decimal> GetMonthlyExpenseAsync(string userId, int year, int month)
-    {
-        return await _repository.GetMonthlyExpenseAsync(userId, year, month);
-    }
-
-    public async Task<Transaction> CreateTransactionAsync(CreateTransactionDto dto, string userId)
+    public async Task<TransactionDto> CreateTransactionAsync(CreateTransactionDto dto, string userId)
     {
         var transaction = new Transaction
         {
@@ -42,28 +42,44 @@ public class TransactionService
             CreatedBy = userId,
             StatusCode = GeneralStatuses.ACTIVE
         };
-
-        return await _repository.AddAsync(transaction);
+        var created = await _repository.AddAsync(transaction);
+        return MapToDto(created);
     }
 
     public async Task UpdateTransactionAsync(UpdateTransactionDto dto, string userId)
     {
-        var transaction = await _repository.GetByIdAsync(dto.Id);
-        if (transaction != null && transaction.UserId == userId)
-        {
-            transaction.Amount = dto.Amount;
-            transaction.Type = dto.Type;
-            transaction.Category = dto.Category;
-            transaction.Date = dto.Date;
-            transaction.Notes = dto.Notes;
-            transaction.UpdatedBy = userId;
+        var transaction = await _repository.GetByIdAsync(dto.Id)
+            ?? throw new KeyNotFoundException($"Transaction with ID {dto.Id} does not exist");
+        if (transaction.UserId != userId)
+            throw new UnauthorizedAccessException();
 
-            await _repository.UpdateAsync(transaction);
-        }
+        transaction.Amount = dto.Amount;
+        transaction.Type = dto.Type;
+        transaction.Category = dto.Category;
+        transaction.Date = dto.Date;
+        transaction.Notes = dto.Notes;
+        transaction.UpdatedBy = userId;
+        await _repository.UpdateAsync(transaction);
     }
 
     public async Task DeleteTransactionAsync(int id, string userId)
     {
+        var transaction = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Transaction with ID {id} does not exist");
+        if (transaction.UserId != userId)
+            throw new UnauthorizedAccessException();
+
         await _repository.DeleteAsync(id, userId);
     }
+
+    internal static TransactionDto MapToDto(Transaction t) => new()
+    {
+        Id = t.Id,
+        Amount = t.Amount,
+        Type = t.Type,
+        Category = t.Category,
+        Date = t.Date,
+        Notes = t.Notes,
+        StatusCode = t.StatusCode,
+    };
 }

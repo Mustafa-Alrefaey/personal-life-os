@@ -70,6 +70,7 @@ builder.Services.AddScoped<PersonalLifeOS.Infrastructure.Services.JournalService
 builder.Services.AddScoped<PersonalLifeOS.Infrastructure.Services.ReceiptService>();
 builder.Services.AddScoped<PersonalLifeOS.Infrastructure.Services.BillService>();
 builder.Services.AddScoped<PersonalLifeOS.Infrastructure.Services.TransactionService>();
+builder.Services.AddScoped<PersonalLifeOS.Infrastructure.Services.DashboardService>();
 
 // Register file storage service
 var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads", "receipts");

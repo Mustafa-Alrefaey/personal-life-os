@@ -14,22 +14,22 @@ public class BillService
         _repository = repository;
     }
 
-    public async Task<List<Bill>> GetAllBillsAsync(string userId)
+    public async Task<List<BillDto>> GetAllBillsAsync(string userId)
     {
-        return await _repository.GetAllByUserIdAsync(userId);
+        var bills = await _repository.GetAllByUserIdAsync(userId);
+        return bills.Select(MapToDto).ToList();
     }
 
-    public async Task<List<Bill>> GetUpcomingBillsAsync(string userId)
+    public async Task<BillDto> GetBillByIdAsync(int id, string userId)
     {
-        return await _repository.GetUpcomingBillsAsync(userId);
+        var bill = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Bill with ID {id} does not exist");
+        if (bill.UserId != userId)
+            throw new UnauthorizedAccessException();
+        return MapToDto(bill);
     }
 
-    public async Task<Bill?> GetBillByIdAsync(int id)
-    {
-        return await _repository.GetByIdAsync(id);
-    }
-
-    public async Task<Bill> CreateBillAsync(CreateBillDto dto, string userId)
+    public async Task<BillDto> CreateBillAsync(CreateBillDto dto, string userId)
     {
         var bill = new Bill
         {
@@ -41,50 +41,67 @@ public class BillService
             CreatedBy = userId,
             StatusCode = GeneralStatuses.PENDING
         };
-
-        return await _repository.AddAsync(bill);
+        var created = await _repository.AddAsync(bill);
+        return MapToDto(created);
     }
 
     public async Task UpdateBillAsync(UpdateBillDto dto, string userId)
     {
-        var bill = await _repository.GetByIdAsync(dto.Id);
-        if (bill != null && bill.UserId == userId)
-        {
-            bill.Name = dto.Name;
-            bill.Amount = dto.Amount;
-            bill.DueDate = dto.DueDate;
-            bill.ReminderDaysBefore = dto.ReminderDaysBefore;
-            bill.StatusCode = dto.StatusCode;
-            bill.UpdatedBy = userId;
+        var bill = await _repository.GetByIdAsync(dto.Id)
+            ?? throw new KeyNotFoundException($"Bill with ID {dto.Id} does not exist");
+        if (bill.UserId != userId)
+            throw new UnauthorizedAccessException();
 
-            await _repository.UpdateAsync(bill);
-        }
+        bill.Name = dto.Name;
+        bill.Amount = dto.Amount;
+        bill.DueDate = dto.DueDate;
+        bill.ReminderDaysBefore = dto.ReminderDaysBefore;
+        bill.StatusCode = dto.StatusCode;
+        bill.UpdatedBy = userId;
+        await _repository.UpdateAsync(bill);
     }
 
     public async Task MarkBillAsPaidAsync(int id, string userId)
     {
-        var bill = await _repository.GetByIdAsync(id);
-        if (bill != null && bill.UserId == userId)
-        {
-            bill.StatusCode = "Paid";
-            bill.UpdatedBy = userId;
-            await _repository.UpdateAsync(bill);
-        }
+        var bill = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Bill with ID {id} does not exist");
+        if (bill.UserId != userId)
+            throw new UnauthorizedAccessException();
+
+        bill.StatusCode = "Paid";
+        bill.UpdatedBy = userId;
+        await _repository.UpdateAsync(bill);
     }
 
     public async Task MarkBillAsUnpaidAsync(int id, string userId)
     {
-        var bill = await _repository.GetByIdAsync(id);
-        if (bill != null && bill.UserId == userId)
-        {
-            bill.StatusCode = GeneralStatuses.PENDING;
-            bill.UpdatedBy = userId;
-            await _repository.UpdateAsync(bill);
-        }
+        var bill = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Bill with ID {id} does not exist");
+        if (bill.UserId != userId)
+            throw new UnauthorizedAccessException();
+
+        bill.StatusCode = GeneralStatuses.PENDING;
+        bill.UpdatedBy = userId;
+        await _repository.UpdateAsync(bill);
     }
 
     public async Task DeleteBillAsync(int id, string userId)
     {
+        var bill = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Bill with ID {id} does not exist");
+        if (bill.UserId != userId)
+            throw new UnauthorizedAccessException();
+
         await _repository.DeleteAsync(id, userId);
     }
+
+    internal static BillDto MapToDto(Bill b) => new()
+    {
+        Id = b.Id,
+        Name = b.Name,
+        Amount = b.Amount,
+        DueDate = b.DueDate,
+        StatusCode = b.StatusCode,
+        ReminderDaysBefore = b.ReminderDaysBefore
+    };
 }

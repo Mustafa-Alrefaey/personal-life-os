@@ -24,13 +24,9 @@ public class TransactionsController : BaseApiController
         {
             var userId = GetCurrentUserId();
             var transactions = await _transactionService.GetAllTransactionsAsync(userId);
-            var dtos = transactions.Select(MapToDto).ToList();
-            return Ok(ApiResponse<List<TransactionDto>>.SuccessResponse(dtos, $"Retrieved {dtos.Count} transactions"));
+            return Ok(ApiResponse<List<TransactionDto>>.SuccessResponse(transactions, $"Retrieved {transactions.Count} transactions"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<List<TransactionDto>>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<List<TransactionDto>>(ex); }
     }
 
     [HttpGet("{id}")]
@@ -39,17 +35,10 @@ public class TransactionsController : BaseApiController
         try
         {
             var userId = GetCurrentUserId();
-            var transaction = await _transactionService.GetTransactionByIdAsync(id);
-            if (transaction == null)
-                return NotFound(ApiResponse<TransactionDto>.ErrorResponse("Transaction not found", new List<string> { $"Transaction with ID {id} does not exist" }));
-            if (transaction.UserId != userId)
-                return Forbid();
-            return Ok(ApiResponse<TransactionDto>.SuccessResponse(MapToDto(transaction), "Transaction retrieved successfully"));
+            var transaction = await _transactionService.GetTransactionByIdAsync(id, userId);
+            return Ok(ApiResponse<TransactionDto>.SuccessResponse(transaction, "Transaction retrieved successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<TransactionDto>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<TransactionDto>(ex); }
     }
 
     [HttpPost]
@@ -66,12 +55,9 @@ public class TransactionsController : BaseApiController
             var userId = GetCurrentUserId();
             var transaction = await _transactionService.CreateTransactionAsync(dto, userId);
             return CreatedAtAction(nameof(GetTransactionById), new { id = transaction.Id },
-                ApiResponse<TransactionDto>.SuccessResponse(MapToDto(transaction), "Transaction created successfully"));
+                ApiResponse<TransactionDto>.SuccessResponse(transaction, "Transaction created successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<TransactionDto>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<TransactionDto>(ex); }
     }
 
     [HttpPut("{id}")]
@@ -84,23 +70,16 @@ public class TransactionsController : BaseApiController
         }
 
         if (id != dto.Id)
-            return BadRequest(ApiResponse<object>.ErrorResponse("ID mismatch", new List<string> { "The ID in the URL does not match the ID in the request body" }));
+            return BadRequest(ApiResponse<object>.ErrorResponse("ID mismatch",
+                new List<string> { "The ID in the URL does not match the ID in the request body" }));
 
         try
         {
             var userId = GetCurrentUserId();
-            var existing = await _transactionService.GetTransactionByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Transaction not found", new List<string> { $"Transaction with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
             await _transactionService.UpdateTransactionAsync(dto, userId);
             return Ok(ApiResponse<object>.SuccessResponse(null, "Transaction updated successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<object>(ex); }
     }
 
     [HttpDelete("{id}")]
@@ -109,29 +88,9 @@ public class TransactionsController : BaseApiController
         try
         {
             var userId = GetCurrentUserId();
-            var existing = await _transactionService.GetTransactionByIdAsync(id);
-            if (existing == null)
-                return NotFound(ApiResponse<object>.ErrorResponse("Transaction not found", new List<string> { $"Transaction with ID {id} does not exist" }));
-            if (existing.UserId != userId)
-                return Forbid();
             await _transactionService.DeleteTransactionAsync(id, userId);
             return Ok(ApiResponse<object>.SuccessResponse(null, "Transaction deleted successfully"));
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
-        }
+        catch (Exception ex) { return HandleException<object>(ex); }
     }
-
-    private static TransactionDto MapToDto(Domain.Entities.Transaction t) => new()
-    {
-        Id = t.Id,
-        Amount = t.Amount,
-        Type = t.Type,
-        Category = t.Category,
-        Date = t.Date,
-        Notes = t.Notes,
-        StatusCode = t.StatusCode,
-    };
-
 }
