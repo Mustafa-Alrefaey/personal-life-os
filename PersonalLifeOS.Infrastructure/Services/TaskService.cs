@@ -1,5 +1,6 @@
 using PersonalLifeOS.Application.DTOs;
 using PersonalLifeOS.Domain.Entities;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Repositories;
 
 namespace PersonalLifeOS.Infrastructure.Services;
@@ -31,9 +32,10 @@ public class TaskService
             Description = dto.Description,
             DueDate = dto.DueDate,
             Category = dto.Category,
+            Priority = dto.Priority,
             UserId = userId,
             CreatedBy = userId,
-            StatusCode = "Pending"
+            StatusCode = GeneralStatuses.PENDING
         };
 
         return await _repository.AddAsync(task);
@@ -48,6 +50,7 @@ public class TaskService
             task.Description = dto.Description;
             task.DueDate = dto.DueDate;
             task.Category = dto.Category;
+            task.Priority = dto.Priority;
             task.StatusCode = dto.StatusCode;
             task.UpdatedBy = userId;
 
@@ -60,7 +63,7 @@ public class TaskService
         var task = await _repository.GetByIdAsync(id);
         if (task != null && task.UserId == userId)
         {
-            task.StatusCode = "Completed";
+            task.StatusCode = GeneralStatuses.COMPLETED;
             task.UpdatedBy = userId;
             await _repository.UpdateAsync(task);
         }

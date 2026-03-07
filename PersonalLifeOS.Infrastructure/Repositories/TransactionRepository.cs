@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PersonalLifeOS.Domain.Entities;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Persistence;
 
 namespace PersonalLifeOS.Infrastructure.Repositories;
@@ -16,7 +17,7 @@ public class TransactionRepository
     public async Task<List<Transaction>> GetAllByUserIdAsync(string userId)
     {
         return await _context.Transactions
-            .Where(t => t.UserId == userId && t.StatusCode != "Deleted")
+            .Where(t => t.UserId == userId && t.StatusCode != GeneralStatuses.DELETED)
             .OrderByDescending(t => t.Date)
             .ToListAsync();
     }
@@ -24,7 +25,7 @@ public class TransactionRepository
     public async Task<Transaction?> GetByIdAsync(int id)
     {
         return await _context.Transactions
-            .FirstOrDefaultAsync(t => t.Id == id && t.StatusCode != "Deleted");
+            .FirstOrDefaultAsync(t => t.Id == id && t.StatusCode != GeneralStatuses.DELETED);
     }
 
     public async Task<decimal> GetMonthlyExpenseAsync(string userId, int year, int month)
@@ -34,7 +35,7 @@ public class TransactionRepository
                        t.Type == Domain.Enums.TransactionType.Expense &&
                        t.Date.Year == year &&
                        t.Date.Month == month &&
-                       t.StatusCode != "Deleted")
+                       t.StatusCode != GeneralStatuses.DELETED)
             .SumAsync(t => t.Amount);
     }
 
@@ -58,7 +59,7 @@ public class TransactionRepository
         var transaction = await GetByIdAsync(id);
         if (transaction != null && transaction.UserId == userId)
         {
-            transaction.StatusCode = "Deleted";
+            transaction.StatusCode = GeneralStatuses.DELETED;
             transaction.UpdatedDate = DateTime.Now;
             transaction.UpdatedBy = userId;
             await _context.SaveChangesAsync();

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalLifeOS.Application.DTOs;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Services;
 
 namespace PersonalLifeOS.API.Controllers;
@@ -45,10 +46,10 @@ public class DashboardController : BaseApiController
             var journals     = await _journalService.GetAllJournalsAsync(userId);
             var receipts     = await _receiptService.GetAllReceiptsAsync(userId);
 
-            var completedTasks = tasks.Count(t => t.StatusCode == "Completed");
-            var pendingTasks   = tasks.Count(t => t.StatusCode == "Pending");
+            var completedTasks = tasks.Count(t => t.StatusCode == GeneralStatuses.COMPLETED);
+            var pendingTasks   = tasks.Count(t => t.StatusCode == GeneralStatuses.PENDING);
             var overdueTasks   = tasks.Count(t =>
-                t.StatusCode == "Pending" &&
+                t.StatusCode == GeneralStatuses.PENDING &&
                 t.DueDate.HasValue &&
                 t.DueDate.Value.Date < DateTime.Now.Date);
 
@@ -60,12 +61,12 @@ public class DashboardController : BaseApiController
                 .Select(t => new TaskDto
                 {
                     Id = t.Id, Title = t.Title, Description = t.Description,
-                    DueDate = t.DueDate, Category = t.Category,
+                    DueDate = t.DueDate, Category = t.Category, Priority = t.Priority,
                     StatusCode = t.StatusCode, CreatedDate = t.CreatedDate
                 }).ToList();
 
             var upcomingBills = bills
-                .Where(b => b.StatusCode == "Pending").OrderBy(b => b.DueDate).Take(5)
+                .Where(b => b.StatusCode == GeneralStatuses.PENDING).OrderBy(b => b.DueDate).Take(5)
                 .Select(b => new BillDto
                 {
                     Id = b.Id, Name = b.Name, Amount = b.Amount,
@@ -82,7 +83,7 @@ public class DashboardController : BaseApiController
                 TotalJournalEntries = journals.Count,
                 TotalReceipts     = receipts.Count,
                 TotalBills        = bills.Count,
-                UnpaidBills       = bills.Count(b => b.StatusCode == "Pending"),
+                UnpaidBills       = bills.Count(b => b.StatusCode == GeneralStatuses.PENDING),
                 TotalIncome       = totalIncome,
                 TotalExpenses     = totalExpenses,
                 NetBalance        = totalIncome - totalExpenses,

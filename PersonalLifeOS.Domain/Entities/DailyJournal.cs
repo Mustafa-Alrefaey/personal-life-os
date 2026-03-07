@@ -1,3 +1,5 @@
+using PersonalLifeOS.Domain.Enums;
+
 namespace PersonalLifeOS.Domain.Entities;
 
 public class DailyJournal
@@ -5,7 +7,7 @@ public class DailyJournal
     public int Id { get; set; }
     public DateTime Date { get; set; }
     public string Notes { get; set; } = string.Empty;
-    public string StatusCode { get; set; } = "Active";
+    public string StatusCode { get; set; } = GeneralStatuses.ACTIVE;
     public string UserId { get; set; } = string.Empty;
 
     // Audit fields

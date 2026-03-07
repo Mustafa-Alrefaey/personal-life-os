@@ -1,3 +1,4 @@
+using PersonalLifeOS.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace PersonalLifeOS.Application.DTOs;
@@ -45,5 +46,5 @@ public class UpdateBillDto
     public int ReminderDaysBefore { get; set; } = 3;
 
     [Required]
-    public string StatusCode { get; set; } = "Pending";
+    public string StatusCode { get; set; } = GeneralStatuses.PENDING;
 }

@@ -27,6 +27,9 @@ export default function TransactionsPage() {
   const [form, setForm] = useState<CreateTransactionRequest>(emptyForm);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [filter, setFilter] = useState<'All' | 'Income' | 'Expense'>('All');
+  const [search, setSearch] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -80,7 +83,16 @@ export default function TransactionsPage() {
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const all = data?.data ?? [];
-  const filtered = filter === 'All' ? all : all.filter((tx) => tx.type === filter);
+  const filtered = all
+    .filter((tx) => filter === 'All' || tx.type === filter)
+    .filter((tx) => !search || tx.category?.toLowerCase().includes(search.toLowerCase()) || tx.notes?.toLowerCase().includes(search.toLowerCase()))
+    .filter((tx) => {
+      if (!dateFrom && !dateTo) return true;
+      const d = tx.date.split('T')[0];
+      if (dateFrom && d < dateFrom) return false;
+      if (dateTo && d > dateTo) return false;
+      return true;
+    });
   const totalIncome  = all.filter((tx) => tx.type === 'Income').reduce((s, tx) => s + tx.amount, 0);
   const totalExpense = all.filter((tx) => tx.type === 'Expense').reduce((s, tx) => s + tx.amount, 0);
   const balance = totalIncome - totalExpense;
@@ -220,28 +232,62 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      {/* Filter tabs */}
-      <div className="flex gap-1 mb-4">
-        {(['All', 'Income', 'Expense'] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold"
-            style={{
-              background: filter === f ? 'var(--accent-light)' : 'var(--bg-subtle)',
-              color: filter === f ? 'var(--accent)' : 'var(--text-secondary)',
-            }}
-          >
-            {f === 'All' ? t('transactions.all') : f === 'Income' ? t('transactions.income') : t('transactions.expense')}
-          </button>
-        ))}
+      {/* Search + Filter */}
+      <div className="flex flex-col gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <svg className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('transactions.search')}
+              className="w-full rounded-lg text-sm outline-none transition-all"
+              style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)', paddingInlineStart: '2.25rem', paddingInlineEnd: '0.75rem', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
+              onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
+              onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
+            />
+          </div>
+          <div className="flex gap-1">
+            {(['All', 'Income', 'Expense'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold"
+                style={{
+                  background: filter === f ? 'var(--accent-light)' : 'var(--bg-subtle)',
+                  color: filter === f ? 'var(--accent)' : 'var(--text-secondary)',
+                }}
+              >
+                {f === 'All' ? t('transactions.all') : f === 'Income' ? t('transactions.income') : t('transactions.expense')}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex gap-2 items-center">
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{t('common.dateFrom')}</span>
+          <div className="w-36"><AppDatePicker value={dateFrom} onChange={setDateFrom} placeholder={t('common.dateFrom')} /></div>
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{t('common.dateTo')}</span>
+          <div className="w-36"><AppDatePicker value={dateTo} onChange={setDateTo} placeholder={t('common.dateTo')} /></div>
+          {(dateFrom || dateTo) && (
+            <button onClick={() => { setDateFrom(''); setDateTo(''); }}
+              className="px-2 py-1.5 rounded-lg text-xs font-semibold"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+              {t('common.clearFilters')}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* List */}
       {isLoading ? <PageLoader message={t('transactions.loading')} /> : filtered.length === 0 ? (
         <div className="card rounded-xl p-12 text-center" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-          <p className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{t('transactions.noTransactions')}</p>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('transactions.noTransactionsHint')}</p>
+          <p className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+            {search || filter !== 'All' || dateFrom || dateTo ? t('transactions.noResults') : t('transactions.noTransactions')}
+          </p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            {search || filter !== 'All' || dateFrom || dateTo ? t('transactions.noResultsHint') : t('transactions.noTransactionsHint')}
+          </p>
         </div>
       ) : (
         <div className="space-y-2">

@@ -19,6 +19,9 @@ export default function JournalPage() {
   const [editEntry, setEditEntry] = useState<JournalEntry | null>(null);
   const [form, setForm] = useState({ date: today, notes: '' });
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const { data, isLoading } = useQuery({ queryKey: ['journal'], queryFn: () => journalService.getAllJournals() });
 
@@ -55,6 +58,16 @@ export default function JournalPage() {
 
   const entries = data?.data ?? [];
 
+  const filtered = entries
+    .filter((e) => !search || e.notes.toLowerCase().includes(search.toLowerCase()))
+    .filter((e) => {
+      if (!dateFrom && !dateTo) return true;
+      const d = e.date.split('T')[0];
+      if (dateFrom && d < dateFrom) return false;
+      if (dateTo && d > dateTo) return false;
+      return true;
+    });
+
   return (
     <MainLayout>
       <div className="card rounded-xl px-6 py-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
@@ -62,7 +75,7 @@ export default function JournalPage() {
         <div>
           <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('journal.title')}</h2>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            {t('journal.entries_count', { count: entries.length })}
+            {t('journal.entries_count', { count: filtered.length })}
           </p>
         </div>
         {showForm ? (
@@ -130,14 +143,48 @@ export default function JournalPage() {
         </div>
       )}
 
-      {isLoading ? <PageLoader message={t('journal.loading')} /> : entries.length === 0 ? (
+      {/* Search + Date Filter */}
+      <div className="flex flex-col gap-3 mb-5">
+        <div className="flex-1 relative">
+          <svg className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input
+            type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('journal.search')}
+            className="w-full rounded-lg text-sm outline-none transition-all"
+            style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)', paddingInlineStart: '2.25rem', paddingInlineEnd: '0.75rem', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
+            onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
+            onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
+          />
+        </div>
+        <div className="flex gap-2 items-center">
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{t('common.dateFrom')}</span>
+          <div className="w-36"><AppDatePicker value={dateFrom} onChange={setDateFrom} placeholder={t('common.dateFrom')} /></div>
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{t('common.dateTo')}</span>
+          <div className="w-36"><AppDatePicker value={dateTo} onChange={setDateTo} placeholder={t('common.dateTo')} /></div>
+          {(dateFrom || dateTo) && (
+            <button onClick={() => { setDateFrom(''); setDateTo(''); }}
+              className="px-2 py-1.5 rounded-lg text-xs font-semibold"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+              {t('common.clearFilters')}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isLoading ? <PageLoader message={t('journal.loading')} /> : filtered.length === 0 ? (
         <div className="card rounded-xl p-12 text-center" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-          <p className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{t('journal.noEntries')}</p>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('journal.noEntriesHint')}</p>
+          <p className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+            {search || dateFrom || dateTo ? t('journal.noResults') : t('journal.noEntries')}
+          </p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            {search || dateFrom || dateTo ? t('journal.noResultsHint') : t('journal.noEntriesHint')}
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
-          {[...entries].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry) => (
+          {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry) => (
             <div key={entry.id} className="interactive-card rounded-xl p-5" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
               <div className="flex justify-between items-start gap-4 mb-3">
                 <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>

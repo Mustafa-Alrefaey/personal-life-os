@@ -1,3 +1,5 @@
+using PersonalLifeOS.Domain.Enums;
+
 namespace PersonalLifeOS.Domain.Entities;
 
 public class Receipt
@@ -9,7 +11,7 @@ public class Receipt
     public DateTime Date { get; set; }
     public string? Category { get; set; }
     public string UserId { get; set; } = string.Empty;
-    public string StatusCode { get; set; } = "Active";
+    public string StatusCode { get; set; } = GeneralStatuses.ACTIVE;
 
     // Audit fields
     public string CreatedBy { get; set; } = string.Empty;

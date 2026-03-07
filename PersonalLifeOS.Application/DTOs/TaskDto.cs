@@ -1,3 +1,4 @@
+using PersonalLifeOS.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace PersonalLifeOS.Application.DTOs;
@@ -9,6 +10,7 @@ public class TaskDto
     public string? Description { get; set; }
     public DateTime? DueDate { get; set; }
     public string? Category { get; set; }
+    public string? Priority { get; set; }
     public string StatusCode { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; }
 }
@@ -26,6 +28,9 @@ public class CreateTaskDto
 
     [MaxLength(50)]
     public string? Category { get; set; }
+
+    [MaxLength(20)]
+    public string? Priority { get; set; }
 }
 
 public class UpdateTaskDto
@@ -44,6 +49,9 @@ public class UpdateTaskDto
     [MaxLength(50)]
     public string? Category { get; set; }
 
+    [MaxLength(20)]
+    public string? Priority { get; set; }
+
     [Required]
-    public string StatusCode { get; set; } = "Pending";
+    public string StatusCode { get; set; } = GeneralStatuses.PENDING;
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PersonalLifeOS.Domain.Entities;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Persistence;
 
 namespace PersonalLifeOS.Infrastructure.Repositories;
@@ -16,7 +17,7 @@ public class ReceiptRepository
     public async Task<List<Receipt>> GetAllByUserIdAsync(string userId)
     {
         return await _context.Receipts
-            .Where(r => r.UserId == userId && r.StatusCode != "Deleted")
+            .Where(r => r.UserId == userId && r.StatusCode != GeneralStatuses.DELETED)
             .OrderByDescending(r => r.Date)
             .ToListAsync();
     }
@@ -24,7 +25,7 @@ public class ReceiptRepository
     public async Task<Receipt?> GetByIdAsync(int id)
     {
         return await _context.Receipts
-            .FirstOrDefaultAsync(r => r.Id == id && r.StatusCode != "Deleted");
+            .FirstOrDefaultAsync(r => r.Id == id && r.StatusCode != GeneralStatuses.DELETED);
     }
 
     public async Task<Receipt> AddAsync(Receipt receipt)
@@ -47,7 +48,7 @@ public class ReceiptRepository
         var receipt = await GetByIdAsync(id);
         if (receipt != null && receipt.UserId == userId)
         {
-            receipt.StatusCode = "Deleted";
+            receipt.StatusCode = GeneralStatuses.DELETED;
             receipt.UpdatedDate = DateTime.Now;
             receipt.UpdatedBy = userId;
             await _context.SaveChangesAsync();

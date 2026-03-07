@@ -74,7 +74,13 @@
     "updated": "تمّ تحديث المهمة",
     "titlePlaceholder": "أدخل عنوان المهمة",
     "descriptionPlaceholder": "وصف اختياري…",
-    "categoryPlaceholder": "مثال: عمل، شخصي"
+    "categoryPlaceholder": "مثال: عمل، شخصي",
+    "priority": "الأولوية",
+    "priorityHigh": "عالية",
+    "priorityMedium": "متوسطة",
+    "priorityLow": "منخفضة",
+    "priorityNone": "بدون",
+    "filterPriorityAll": "كل الأولويات"
   },
   "bills": {
     "title": "الفواتير",
@@ -102,7 +108,13 @@
     "paid": "تمّت الدفع",
     "deleted": "تمّ حذف الفاتورة",
     "updated": "تمّ تحديث الفاتورة",
-    "namePlaceholder": "مثال: الكهرباء"
+    "namePlaceholder": "مثال: الكهرباء",
+    "search": "بحث في الفواتير…",
+    "noResults": "لا توجد فواتير مطابقة",
+    "noResultsHint": "جرّب تعديل البحث أو الفلتر.",
+    "filterAll": "الكل",
+    "filterPending": "معلّقة",
+    "filterPaid": "مدفوعة"
   },
   "transactions": {
     "title": "المعاملات",
@@ -128,7 +140,10 @@
     "updated": "تمّ تحديث المعاملة",
     "edit": "تعديل",
     "delete": "حذف",
-    "categoryPlaceholder": "مثال: طعام، راتب"
+    "categoryPlaceholder": "مثال: طعام، راتب",
+    "search": "بحث في المعاملات…",
+    "noResults": "لا توجد معاملات مطابقة",
+    "noResultsHint": "جرّب تعديل البحث أو الفلتر."
   },
   "journal": {
     "title": "اليوميات",
@@ -150,7 +165,10 @@
     "saved": "تمّ حفظ التدوين",
     "updated": "تمّ تحديث التدوين",
     "deleted": "تمّ حذف التدوين",
-    "duplicateDate": "يوجد تدوين لهذا التاريخ بالفعل"
+    "duplicateDate": "يوجد تدوين لهذا التاريخ بالفعل",
+    "search": "بحث في اليوميات…",
+    "noResults": "لا توجد تدوينات مطابقة",
+    "noResultsHint": "جرّب تعديل البحث أو فلتر التاريخ."
   },
   "receipts": {
     "title": "الإيصالات",
@@ -175,7 +193,10 @@
     "updated": "تمّ تحديث الإيصال",
     "imageUpdated": "تمّ تحديث صورة الإيصال",
     "titlePlaceholder": "مثال: محل البقالة",
-    "categoryPlaceholder": "مثال: طعام، مواصلات"
+    "categoryPlaceholder": "مثال: طعام، مواصلات",
+    "search": "بحث في الإيصالات…",
+    "noResults": "لا توجد إيصالات مطابقة",
+    "noResultsHint": "جرّب تعديل البحث أو الفلتر."
   },
   "profile": {
     "title": "الملف الشخصي",
@@ -231,6 +252,9 @@
     "saving": "جارٍ الحفظ…",
     "updated": "تمّ التحديث بنجاح",
     "requiredField": "يرجى ملء جميع الحقول المطلوبة",
-    "selectDate": "اختر تاريخاً"
+    "selectDate": "اختر تاريخاً",
+    "dateFrom": "من",
+    "dateTo": "إلى",
+    "clearFilters": "مسح"
   }
 }

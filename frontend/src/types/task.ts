@@ -6,6 +6,7 @@ export interface Task {
   description?: string;
   dueDate?: string;
   category?: string;
+  priority?: string;
   statusCode: string;
   createdDate: string;
 }
@@ -15,6 +16,7 @@ export interface CreateTaskRequest {
   description?: string;
   dueDate?: string;
   category?: string;
+  priority?: string;
 }
 
 export interface UpdateTaskRequest {
@@ -23,5 +25,6 @@ export interface UpdateTaskRequest {
   description?: string;
   dueDate?: string;
   category?: string;
+  priority?: string;
   statusCode: string;
 }

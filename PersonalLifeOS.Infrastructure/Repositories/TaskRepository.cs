@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PersonalLifeOS.Domain.Entities;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Persistence;
 
 namespace PersonalLifeOS.Infrastructure.Repositories;
@@ -16,7 +17,7 @@ public class TaskRepository
     public async Task<List<TaskEntity>> GetAllByUserIdAsync(string userId)
     {
         return await _context.Tasks
-            .Where(t => t.UserId == userId && t.StatusCode != "Deleted")
+            .Where(t => t.UserId == userId && t.StatusCode != GeneralStatuses.DELETED)
             .OrderByDescending(t => t.CreatedDate)
             .ToListAsync();
     }
@@ -24,7 +25,7 @@ public class TaskRepository
     public async Task<TaskEntity?> GetByIdAsync(int id)
     {
         return await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.StatusCode != "Deleted");
+            .FirstOrDefaultAsync(t => t.Id == id && t.StatusCode != GeneralStatuses.DELETED);
     }
 
     public async Task<TaskEntity> AddAsync(TaskEntity task)
@@ -47,7 +48,7 @@ public class TaskRepository
         var task = await GetByIdAsync(id);
         if (task != null && task.UserId == userId)
         {
-            task.StatusCode = "Deleted";
+            task.StatusCode = GeneralStatuses.DELETED;
             task.UpdatedDate = DateTime.Now;
             task.UpdatedBy = userId;
             await _context.SaveChangesAsync();

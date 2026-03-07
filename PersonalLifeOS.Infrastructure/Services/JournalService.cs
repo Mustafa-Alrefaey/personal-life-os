@@ -1,5 +1,6 @@
 using PersonalLifeOS.Application.DTOs;
 using PersonalLifeOS.Domain.Entities;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Repositories;
 
 namespace PersonalLifeOS.Infrastructure.Services;
@@ -31,7 +32,7 @@ public class JournalService
             Notes = dto.Notes,
             UserId = userId,
             CreatedBy = userId,
-            StatusCode = "Active"
+            StatusCode = GeneralStatuses.ACTIVE
         };
 
         return await _repository.AddAsync(journal);

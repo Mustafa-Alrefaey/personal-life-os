@@ -74,7 +74,13 @@
     "updated": "Task updated",
     "titlePlaceholder": "Enter task title",
     "descriptionPlaceholder": "Optional description…",
-    "categoryPlaceholder": "e.g. Work, Personal"
+    "categoryPlaceholder": "e.g. Work, Personal",
+    "priority": "Priority",
+    "priorityHigh": "High",
+    "priorityMedium": "Medium",
+    "priorityLow": "Low",
+    "priorityNone": "None",
+    "filterPriorityAll": "All Priorities"
   },
   "bills": {
     "title": "Bills",
@@ -102,7 +108,13 @@
     "paid": "Bill marked as paid",
     "deleted": "Bill deleted",
     "updated": "Bill updated",
-    "namePlaceholder": "e.g. Electricity"
+    "namePlaceholder": "e.g. Electricity",
+    "search": "Search bills…",
+    "noResults": "No matching bills",
+    "noResultsHint": "Try adjusting your search or filter.",
+    "filterAll": "All",
+    "filterPending": "Pending",
+    "filterPaid": "Paid"
   },
   "transactions": {
     "title": "Transactions",
@@ -128,7 +140,10 @@
     "updated": "Transaction updated",
     "edit": "Edit",
     "delete": "Delete",
-    "categoryPlaceholder": "e.g. Food, Salary"
+    "categoryPlaceholder": "e.g. Food, Salary",
+    "search": "Search transactions…",
+    "noResults": "No matching transactions",
+    "noResultsHint": "Try adjusting your search or filter."
   },
   "journal": {
     "title": "Journal",
@@ -150,7 +165,10 @@
     "saved": "Entry saved",
     "updated": "Entry updated",
     "deleted": "Entry deleted",
-    "duplicateDate": "A journal entry already exists for this date"
+    "duplicateDate": "A journal entry already exists for this date",
+    "search": "Search journal…",
+    "noResults": "No matching entries",
+    "noResultsHint": "Try adjusting your search or date filter."
   },
   "receipts": {
     "title": "Receipts",
@@ -175,7 +193,10 @@
     "updated": "Receipt updated",
     "imageUpdated": "Receipt image updated",
     "titlePlaceholder": "e.g. Grocery Store",
-    "categoryPlaceholder": "e.g. Food, Transport"
+    "categoryPlaceholder": "e.g. Food, Transport",
+    "search": "Search receipts…",
+    "noResults": "No matching receipts",
+    "noResultsHint": "Try adjusting your search or filter."
   },
   "profile": {
     "title": "Profile",
@@ -231,6 +252,9 @@
     "saving": "Saving…",
     "updated": "Updated successfully",
     "requiredField": "Please fill in all required fields",
-    "selectDate": "Select date"
+    "selectDate": "Select date",
+    "dateFrom": "From",
+    "dateTo": "To",
+    "clearFilters": "Clear"
   }
 }

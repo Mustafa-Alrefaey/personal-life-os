@@ -11,7 +11,7 @@ import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
-const emptyTask: CreateTaskRequest = { title: '', description: '', dueDate: '', category: '' };
+const emptyTask: CreateTaskRequest = { title: '', description: '', dueDate: '', category: '', priority: '' };
 
 const inputCls = 'w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all';
 const inputStyle = { background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' };
@@ -27,6 +27,9 @@ export default function TasksPage() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Completed'>('All');
+  const [priorityFilter, setPriorityFilter] = useState<string>('All');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [completingId, setCompletingId] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
@@ -41,7 +44,7 @@ export default function TasksPage() {
 
   const startEdit = (task: Task) => {
     setEditingTask(task);
-    setForm({ title: task.title, description: task.description ?? '', dueDate: task.dueDate?.split('T')[0] ?? '', category: task.category ?? '' });
+    setForm({ title: task.title, description: task.description ?? '', dueDate: task.dueDate?.split('T')[0] ?? '', category: task.category ?? '', priority: task.priority ?? '' });
     setShowForm(true);
   };
 
@@ -86,7 +89,16 @@ export default function TasksPage() {
   const tasks = data?.data ?? [];
   const filtered = tasks
     .filter((task) => statusFilter === 'All' || task.statusCode === statusFilter)
-    .filter((task) => !search || task.title.toLowerCase().includes(search.toLowerCase()) || task.category?.toLowerCase().includes(search.toLowerCase()));
+    .filter((task) => priorityFilter === 'All' || (task.priority ?? '') === priorityFilter || (priorityFilter === '' && !task.priority))
+    .filter((task) => !search || task.title.toLowerCase().includes(search.toLowerCase()) || task.category?.toLowerCase().includes(search.toLowerCase()))
+    .filter((task) => {
+      if (!dateFrom && !dateTo) return true;
+      const d = task.dueDate ? task.dueDate.split('T')[0] : '';
+      if (!d) return false;
+      if (dateFrom && d < dateFrom) return false;
+      if (dateTo && d > dateTo) return false;
+      return true;
+    });
 
   return (
     <MainLayout>
@@ -139,7 +151,7 @@ export default function TasksPage() {
               <div>
                 <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.category')}</label>
                 <AppSelect
-                  value={form.category}
+                  value={form.category ?? ''}
                   onChange={(v) => setForm({ ...form, category: v })}
                   placeholder={t('categories.placeholder')}
                   options={[
@@ -151,6 +163,20 @@ export default function TasksPage() {
                     { value: 'Shopping', label: t('categories.shopping') },
                     { value: 'Learning', label: t('categories.learning') },
                     { value: 'Other', label: t('categories.other') },
+                  ]}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.priority')}</label>
+                <AppSelect
+                  value={form.priority ?? ''}
+                  onChange={(v) => setForm({ ...form, priority: v })}
+                  placeholder={t('tasks.priority')}
+                  options={[
+                    { value: '', label: t('tasks.priorityNone') },
+                    { value: 'High', label: t('tasks.priorityHigh') },
+                    { value: 'Medium', label: t('tasks.priorityMedium') },
+                    { value: 'Low', label: t('tasks.priorityLow') },
                   ]}
                 />
               </div>
@@ -172,41 +198,70 @@ export default function TasksPage() {
       )}
 
       {/* Search + filter */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
-        <div className="flex-1 relative">
-          <svg className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <input
-            type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('tasks.search')}
-            className="w-full rounded-lg text-sm outline-none transition-all"
-            style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)', paddingInlineStart: '2.25rem', paddingInlineEnd: '0.75rem', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
-            onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
-            onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
-          />
+      <div className="flex flex-col gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <svg className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('tasks.search')}
+              className="w-full rounded-lg text-sm outline-none transition-all"
+              style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)', paddingInlineStart: '2.25rem', paddingInlineEnd: '0.75rem', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
+              onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
+              onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
+            />
+          </div>
+          <div className="flex gap-1">
+            {(['All', 'Pending', 'Completed'] as const).map((s) => (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className="px-3 py-2 rounded-lg text-xs font-semibold"
+                style={{
+                  background: statusFilter === s ? 'var(--accent-light)' : 'var(--bg-subtle)',
+                  color: statusFilter === s ? 'var(--accent)' : 'var(--text-secondary)',
+                }}>
+                {s === 'All' ? t('tasks.filterAll') : s === 'Pending' ? t('tasks.filterPending') : t('tasks.filterCompleted')}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex gap-1">
-          {(['All', 'Pending', 'Completed'] as const).map((s) => (
-            <button key={s} onClick={() => setStatusFilter(s)}
-              className="px-3 py-2 rounded-lg text-xs font-semibold"
-              style={{
-                background: statusFilter === s ? 'var(--accent-light)' : 'var(--bg-subtle)',
-                color: statusFilter === s ? 'var(--accent)' : 'var(--text-secondary)',
-              }}>
-              {s === 'All' ? t('tasks.filterAll') : s === 'Pending' ? t('tasks.filterPending') : t('tasks.filterCompleted')}
-            </button>
-          ))}
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <div className="flex gap-1">
+            {(['All', 'High', 'Medium', 'Low', ''] as const).map((p) => (
+              <button key={p} onClick={() => setPriorityFilter(p)}
+                className="px-3 py-2 rounded-lg text-xs font-semibold"
+                style={{
+                  background: priorityFilter === p ? (p === 'High' ? 'var(--danger-bg)' : p === 'Medium' ? 'var(--warning-bg)' : p === 'Low' ? 'var(--success-bg)' : 'var(--accent-light)') : 'var(--bg-subtle)',
+                  color: priorityFilter === p ? (p === 'High' ? 'var(--danger)' : p === 'Medium' ? 'var(--warning)' : p === 'Low' ? 'var(--success)' : 'var(--accent)') : 'var(--text-secondary)',
+                }}>
+                {p === 'All' ? t('tasks.filterPriorityAll') : p === 'High' ? t('tasks.priorityHigh') : p === 'Medium' ? t('tasks.priorityMedium') : p === 'Low' ? t('tasks.priorityLow') : t('tasks.priorityNone')}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 items-center">
+            <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{t('common.dateFrom')}</span>
+            <div className="w-36"><AppDatePicker value={dateFrom} onChange={setDateFrom} placeholder={t('common.dateFrom')} /></div>
+            <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{t('common.dateTo')}</span>
+            <div className="w-36"><AppDatePicker value={dateTo} onChange={setDateTo} placeholder={t('common.dateTo')} /></div>
+            {(dateFrom || dateTo) && (
+              <button onClick={() => { setDateFrom(''); setDateTo(''); }}
+                className="px-2 py-1.5 rounded-lg text-xs font-semibold"
+                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+                {t('common.clearFilters')}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {isLoading ? <PageLoader message={t('tasks.loading')} /> : filtered.length === 0 ? (
         <div className="card rounded-xl p-12 text-center" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
           <p className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
-            {search || statusFilter !== 'All' ? t('tasks.noResults') : t('tasks.noTasks')}
+            {search || statusFilter !== 'All' || priorityFilter !== 'All' || dateFrom || dateTo ? t('tasks.noResults') : t('tasks.noTasks')}
           </p>
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            {search || statusFilter !== 'All' ? t('tasks.noResultsHint') : t('tasks.noTasksHint')}
+            {search || statusFilter !== 'All' || priorityFilter !== 'All' || dateFrom || dateTo ? t('tasks.noResultsHint') : t('tasks.noTasksHint')}
           </p>
         </div>
       ) : (
@@ -240,6 +295,14 @@ export default function TasksPage() {
                   {task.category && (
                     <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
                       {t(CATEGORY_I18N_KEYS[task.category] ?? task.category)}
+                    </span>
+                  )}
+                  {task.priority && (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
+                      background: task.priority === 'High' ? 'var(--danger-bg)' : task.priority === 'Medium' ? 'var(--warning-bg)' : 'var(--success-bg)',
+                      color: task.priority === 'High' ? 'var(--danger)' : task.priority === 'Medium' ? 'var(--warning)' : 'var(--success)',
+                    }}>
+                      {task.priority === 'High' ? t('tasks.priorityHigh') : task.priority === 'Medium' ? t('tasks.priorityMedium') : t('tasks.priorityLow')}
                     </span>
                   )}
                 </div>

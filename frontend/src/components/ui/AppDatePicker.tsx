@@ -66,7 +66,7 @@ export function AppDatePicker({ value, onChange, placeholder, required, minDate 
 
       <DatePicker
         selected={selected}
-        onChange={(date) => {
+        onChange={(date: Date | null) => {
           if (date) {
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -81,8 +81,8 @@ export function AppDatePicker({ value, onChange, placeholder, required, minDate 
         wrapperClassName="w-full"
         popperPlacement="bottom-start"
         popperModifiers={[
-          { name: 'offset', options: { offset: [0, 4] } },
-          { name: 'preventOverflow', options: { padding: 8 } },
+          { name: 'offset', options: { offset: [0, 4] } } as any,
+          { name: 'preventOverflow', options: { padding: 8 } } as any,
         ]}
       />
     </div>

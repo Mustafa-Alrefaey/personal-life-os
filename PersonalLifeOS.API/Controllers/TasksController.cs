@@ -35,6 +35,7 @@ public class TasksController : BaseApiController
                 Description = t.Description,
                 DueDate = t.DueDate,
                 Category = t.Category,
+                Priority = t.Priority,
                 StatusCode = t.StatusCode,
                 CreatedDate = t.CreatedDate
             }).ToList();
@@ -85,6 +86,7 @@ public class TasksController : BaseApiController
                 Description = task.Description,
                 DueDate = task.DueDate,
                 Category = task.Category,
+                Priority = task.Priority,
                 StatusCode = task.StatusCode,
                 CreatedDate = task.CreatedDate
             };
@@ -127,6 +129,7 @@ public class TasksController : BaseApiController
                 Description = task.Description,
                 DueDate = task.DueDate,
                 Category = task.Category,
+                Priority = task.Priority,
                 StatusCode = task.StatusCode,
                 CreatedDate = task.CreatedDate
             };

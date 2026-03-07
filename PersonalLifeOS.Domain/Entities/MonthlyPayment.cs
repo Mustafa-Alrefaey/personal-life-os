@@ -1,3 +1,5 @@
+using PersonalLifeOS.Domain.Enums;
+
 namespace PersonalLifeOS.Domain.Entities;
 
 public class MonthlyPayment
@@ -7,7 +9,7 @@ public class MonthlyPayment
     public decimal Amount { get; set; }
     public int Month { get; set; }
     public int Year { get; set; }
-    public string StatusCode { get; set; } = "Pending";
+    public string StatusCode { get; set; } = GeneralStatuses.PENDING;
     public string UserId { get; set; } = string.Empty;
     public string? Notes { get; set; }
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using PersonalLifeOS.Application.DTOs;
 using PersonalLifeOS.Domain.Entities;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.FileStorage;
 using PersonalLifeOS.Infrastructure.Repositories;
 
@@ -40,7 +41,7 @@ public class ReceiptService
             ImagePath = imagePath,
             UserId = userId,
             CreatedBy = userId,
-            StatusCode = "Active"
+            StatusCode = GeneralStatuses.ACTIVE
         };
 
         return await _repository.AddAsync(receipt);

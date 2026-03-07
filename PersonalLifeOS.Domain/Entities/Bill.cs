@@ -1,3 +1,5 @@
+using PersonalLifeOS.Domain.Enums;
+
 namespace PersonalLifeOS.Domain.Entities;
 
 public class Bill
@@ -7,7 +9,7 @@ public class Bill
     public decimal Amount { get; set; }
     public DateTime DueDate { get; set; }
     public int ReminderDaysBefore { get; set; } = 3;
-    public string StatusCode { get; set; } = "Pending";
+    public string StatusCode { get; set; } = GeneralStatuses.PENDING;
     public string UserId { get; set; } = string.Empty;
 
     // Audit fields

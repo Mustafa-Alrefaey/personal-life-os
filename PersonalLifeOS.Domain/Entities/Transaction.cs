@@ -10,7 +10,7 @@ public class Transaction
     public string? Category { get; set; }
     public DateTime Date { get; set; }
     public string? Notes { get; set; }
-    public string StatusCode { get; set; } = "Active";
+    public string StatusCode { get; set; } = GeneralStatuses.ACTIVE;
     public string UserId { get; set; } = string.Empty;
 
     // Audit fields

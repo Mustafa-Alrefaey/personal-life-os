@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PersonalLifeOS.Domain.Entities;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Persistence;
 
 namespace PersonalLifeOS.Infrastructure.Repositories;
@@ -16,7 +17,7 @@ public class BillRepository
     public async Task<List<Bill>> GetAllByUserIdAsync(string userId)
     {
         return await _context.Bills
-            .Where(b => b.UserId == userId && b.StatusCode != "Deleted")
+            .Where(b => b.UserId == userId && b.StatusCode != GeneralStatuses.DELETED)
             .OrderBy(b => b.DueDate)
             .ToListAsync();
     }
@@ -24,14 +25,14 @@ public class BillRepository
     public async Task<Bill?> GetByIdAsync(int id)
     {
         return await _context.Bills
-            .FirstOrDefaultAsync(b => b.Id == id && b.StatusCode != "Deleted");
+            .FirstOrDefaultAsync(b => b.Id == id && b.StatusCode != GeneralStatuses.DELETED);
     }
 
     public async Task<List<Bill>> GetUpcomingBillsAsync(string userId)
     {
         return await _context.Bills
             .Where(b => b.UserId == userId &&
-                       b.StatusCode == "Pending" &&
+                       b.StatusCode == GeneralStatuses.PENDING &&
                        b.DueDate >= DateTime.Now.Date)
             .OrderBy(b => b.DueDate)
             .Take(5)
@@ -58,7 +59,7 @@ public class BillRepository
         var bill = await GetByIdAsync(id);
         if (bill != null && bill.UserId == userId)
         {
-            bill.StatusCode = "Deleted";
+            bill.StatusCode = GeneralStatuses.DELETED;
             bill.UpdatedDate = DateTime.Now;
             bill.UpdatedBy = userId;
             await _context.SaveChangesAsync();

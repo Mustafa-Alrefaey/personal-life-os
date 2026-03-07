@@ -1,3 +1,5 @@
+using PersonalLifeOS.Domain.Enums;
+
 namespace PersonalLifeOS.Domain.Entities;
 
 public class TaskEntity
@@ -7,7 +9,8 @@ public class TaskEntity
     public string? Description { get; set; }
     public DateTime? DueDate { get; set; }
     public string? Category { get; set; }
-    public string StatusCode { get; set; } = "Pending";
+    public string? Priority { get; set; }
+    public string StatusCode { get; set; } = GeneralStatuses.PENDING;
     public string UserId { get; set; } = string.Empty;
 
     // Audit fields

@@ -25,6 +25,10 @@ export default function BillsPage() {
   const [editingBill, setEditingBill] = useState<Bill | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const [payingId, setPayingId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Paid'>('All');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const { data, isLoading } = useQuery({ queryKey: ['bills'], queryFn: () => billService.getAllBills() });
 
@@ -82,6 +86,16 @@ export default function BillsPage() {
   const bills = data?.data ?? [];
   const pendingCount = bills.filter((b) => b.statusCode === 'Pending').length;
   const paidCount    = bills.filter((b) => b.statusCode === 'Paid').length;
+  const filtered = bills
+    .filter((b) => statusFilter === 'All' || b.statusCode === statusFilter)
+    .filter((b) => !search || b.name.toLowerCase().includes(search.toLowerCase()))
+    .filter((b) => {
+      if (!dateFrom && !dateTo) return true;
+      const d = b.dueDate.split('T')[0];
+      if (dateFrom && d < dateFrom) return false;
+      if (dateTo && d > dateTo) return false;
+      return true;
+    });
 
   return (
     <MainLayout>
@@ -157,14 +171,62 @@ export default function BillsPage() {
         </div>
       )}
 
-      {isLoading ? <PageLoader message={t('bills.loading')} /> : bills.length === 0 ? (
+      {/* Search + filter */}
+      <div className="flex flex-col gap-3 mb-5">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <svg className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('bills.search')}
+              className="w-full rounded-lg text-sm outline-none transition-all"
+              style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)', paddingInlineStart: '2.25rem', paddingInlineEnd: '0.75rem', paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
+              onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
+              onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
+            />
+          </div>
+          <div className="flex gap-1">
+            {(['All', 'Pending', 'Paid'] as const).map((s) => (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className="px-3 py-2 rounded-lg text-xs font-semibold"
+                style={{
+                  background: statusFilter === s ? 'var(--accent-light)' : 'var(--bg-subtle)',
+                  color: statusFilter === s ? 'var(--accent)' : 'var(--text-secondary)',
+                }}>
+                {s === 'All' ? t('bills.filterAll') : s === 'Pending' ? t('bills.filterPending') : t('bills.filterPaid')}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex gap-2 items-center">
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{t('common.dateFrom')}</span>
+          <div className="w-36"><AppDatePicker value={dateFrom} onChange={setDateFrom} placeholder={t('common.dateFrom')} /></div>
+          <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>{t('common.dateTo')}</span>
+          <div className="w-36"><AppDatePicker value={dateTo} onChange={setDateTo} placeholder={t('common.dateTo')} /></div>
+          {(dateFrom || dateTo) && (
+            <button onClick={() => { setDateFrom(''); setDateTo(''); }}
+              className="px-2 py-1.5 rounded-lg text-xs font-semibold"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+              {t('common.clearFilters')}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isLoading ? <PageLoader message={t('bills.loading')} /> : filtered.length === 0 ? (
         <div className="card rounded-xl p-12 text-center" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-          <p className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{t('bills.noBills')}</p>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('bills.noBillsHint')}</p>
+          <p className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+            {search || statusFilter !== 'All' || dateFrom || dateTo ? t('bills.noResults') : t('bills.noBills')}
+          </p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            {search || statusFilter !== 'All' || dateFrom || dateTo ? t('bills.noResultsHint') : t('bills.noBillsHint')}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
-          {bills.map((bill) => {
+          {filtered.map((bill) => {
             const isOverdue = bill.statusCode === 'Pending' && new Date(bill.dueDate) < new Date();
             const statusLabel = bill.statusCode === 'Paid' ? t('bills.status_paid') : isOverdue ? t('bills.status_overdue') : t('bills.status_pending');
             const statusColor = bill.statusCode === 'Paid' ? 'var(--success)' : isOverdue ? 'var(--danger)' : 'var(--warning)';

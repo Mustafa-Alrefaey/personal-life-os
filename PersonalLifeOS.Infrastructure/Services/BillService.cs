@@ -1,5 +1,6 @@
 using PersonalLifeOS.Application.DTOs;
 using PersonalLifeOS.Domain.Entities;
+using PersonalLifeOS.Domain.Enums;
 using PersonalLifeOS.Infrastructure.Repositories;
 
 namespace PersonalLifeOS.Infrastructure.Services;
@@ -38,7 +39,7 @@ public class BillService
             ReminderDaysBefore = dto.ReminderDaysBefore,
             UserId = userId,
             CreatedBy = userId,
-            StatusCode = "Pending"
+            StatusCode = GeneralStatuses.PENDING
         };
 
         return await _repository.AddAsync(bill);
