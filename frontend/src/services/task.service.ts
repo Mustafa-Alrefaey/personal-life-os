@@ -24,7 +24,8 @@ export const taskService = {
 
   // Update task
   async updateTask(data: UpdateTaskRequest): Promise<ApiResponse<object>> {
-    const response = await api.put<ApiResponse<object>>(`/tasks/${data.id}`, data);
+    const payload = { ...data, dueDate: data.dueDate || null };
+    const response = await api.put<ApiResponse<object>>(`/tasks/${data.id}`, payload);
     return response.data;
   },
 
