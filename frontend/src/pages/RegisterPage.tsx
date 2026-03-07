@@ -13,6 +13,8 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ email: '', password: '', confirmPassword: '', fullName: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const isRTL = i18n.language === 'ar';
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,21 +37,47 @@ export default function RegisterPage() {
     }
   };
 
-  const field = (id: string, label: string, type: string, value: string, placeholder: string) => (
-    <div>
-      <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{label}</label>
-      <input
-        id={id} type={type} required value={value}
-        onChange={(e) => setForm({ ...form, [id]: e.target.value })}
-        className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
-        style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
-        onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
-        onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
-        placeholder={placeholder}
-        minLength={id === 'password' || id === 'confirmPassword' ? 6 : undefined}
-      />
-    </div>
+  const eyeIcon = (visible: boolean) => visible ? (
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+  ) : (
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
   );
+
+  const field = (id: string, label: string, type: string, value: string, placeholder: string) => {
+    const isPasswordField = id === 'password' || id === 'confirmPassword';
+    const visible = id === 'password' ? showPassword : id === 'confirmPassword' ? showConfirm : false;
+    const toggleVisible = id === 'password' ? () => setShowPassword(!showPassword) : id === 'confirmPassword' ? () => setShowConfirm(!showConfirm) : undefined;
+    const inputType = isPasswordField ? (visible ? 'text' : 'password') : type;
+
+    return (
+      <div>
+        <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{label}</label>
+        <div className="relative">
+          <input
+            id={id} type={inputType} required value={value}
+            onChange={(e) => setForm({ ...form, [id]: e.target.value })}
+            className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all"
+            style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', color: 'var(--text-primary)', ...(isPasswordField ? { paddingInlineEnd: '2.5rem' } : {}) }}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--border-default)')}
+            placeholder={placeholder}
+            minLength={isPasswordField ? 6 : undefined}
+          />
+          {isPasswordField && (
+            <button
+              type="button"
+              onClick={toggleVisible}
+              className="absolute inset-y-0 end-0 flex items-center pe-3"
+              style={{ color: 'var(--text-muted)' }}
+              tabIndex={-1}
+            >
+              {eyeIcon(visible)}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div
@@ -77,7 +105,7 @@ export default function RegisterPage() {
           <h2 className="text-lg font-semibold mb-6" style={{ color: 'var(--text-primary)' }}>{t('auth.register')}</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {field('fullName', t('auth.fullName'), 'text', form.fullName, 'John Doe')}
+            {field('fullName', t('auth.fullName'), 'text', form.fullName, 'your name')}
             {field('email', t('auth.email'), 'email', form.email, 'you@example.com')}
             {field('password', t('auth.password'), 'password', form.password, '••••••••')}
             {field('confirmPassword', t('auth.confirmPassword'), 'password', form.confirmPassword, '••••••••')}

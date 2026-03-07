@@ -24,6 +24,7 @@
     "registerLink": "سجّل الآن",
     "loginLink": "تسجيل الدخول",
     "passwordMismatch": "كلمتا المرور غير متطابقتين",
+    "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     "serverError": "تعذّر الاتصال بالخادم. حاول مجدداً."
   },
   "dashboard": {

@@ -24,6 +24,7 @@
     "registerLink": "Register",
     "loginLink": "Sign in",
     "passwordMismatch": "Passwords do not match",
+    "invalidCredentials": "Invalid email or password.",
     "serverError": "Unable to connect to the server. Please try again."
   },
   "dashboard": {
