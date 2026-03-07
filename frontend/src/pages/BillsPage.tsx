@@ -6,6 +6,7 @@ import type { Bill, CreateBillRequest, UpdateBillRequest } from '../types/bill';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { AppDatePicker } from '../components/ui/AppDatePicker';
+import { Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
@@ -113,61 +114,58 @@ export default function BillsPage() {
             {t('bills.pending_count', { count: pendingCount })} · {t('bills.paid_count', { count: paidCount })}
           </p>
         </div>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-            style={{ background: 'var(--accent)' }}
-          >
-            {t('bills.addBill')}
-          </button>
-        )}
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+          style={{ background: 'var(--accent)' }}
+        >
+          {t('bills.addBill')}
+        </button>
       </div>
 
-      {showForm && (
-        <div className="card rounded-xl p-6 mb-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            {editingBill ? t('bills.editBill') : t('bills.addBill')}
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('bills.name')} *</label>
-                <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder={t('bills.namePlaceholder')} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('bills.amount')} *</label>
-                <input type="number" required min="0" step="0.01" value={form.amount || ''}
-                  onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
-                  className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder="0.00" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('bills.dueDate')} *</label>
-                <AppDatePicker value={form.dueDate} onChange={(v) => setForm({ ...form, dueDate: v })} required />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('bills.reminder')}</label>
-                <input type="number" min="0" max="30" value={form.reminderDaysBefore}
-                  onChange={(e) => setForm({ ...form, reminderDaysBefore: parseInt(e.target.value) || 0 })}
-                  className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} />
-              </div>
+      <Modal
+        open={showForm}
+        onClose={closeForm}
+        title={editingBill ? t('bills.editBill') : t('bills.addBill')}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('bills.name')} *</label>
+              <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder={t('bills.namePlaceholder')} />
             </div>
-            <div className="flex justify-end gap-2 pt-1">
-              <button type="button" onClick={closeForm}
-                className="px-4 py-2 rounded-lg text-sm font-semibold"
-                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
-                {t('bills.cancel')}
-              </button>
-              <button type="submit" disabled={isSaving || !form.dueDate}
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
-                style={{ background: 'var(--accent)' }}>
-                {isSaving ? <><Spinner size="sm" />{editingBill ? t('common.saving') : t('bills.adding')}</> : editingBill ? t('common.saveChanges') : t('bills.addBill')}
-              </button>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('bills.amount')} *</label>
+              <input type="number" required min="0" step="0.01" value={form.amount || ''}
+                onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
+                className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder="0.00" />
             </div>
-          </form>
-        </div>
-      )}
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('bills.dueDate')} *</label>
+              <AppDatePicker value={form.dueDate} onChange={(v) => setForm({ ...form, dueDate: v })} required />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('bills.reminder')}</label>
+              <input type="number" min="0" max="30" value={form.reminderDaysBefore}
+                onChange={(e) => setForm({ ...form, reminderDaysBefore: parseInt(e.target.value) || 0 })}
+                className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" onClick={closeForm}
+              className="px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+              {t('bills.cancel')}
+            </button>
+            <button type="submit" disabled={isSaving || !form.dueDate}
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+              style={{ background: 'var(--accent)' }}>
+              {isSaving ? <><Spinner size="sm" />{editingBill ? t('common.saving') : t('bills.adding')}</> : editingBill ? t('common.saveChanges') : t('bills.addBill')}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Search + filter */}
       <div className="flex flex-col gap-3 mb-5">

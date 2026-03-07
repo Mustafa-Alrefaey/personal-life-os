@@ -1,6 +1,7 @@
 ﻿import { useState, useCallback, memo } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
 import { useSidebarStore } from '../../stores/sidebarStore';
 import { useRamadanStore } from '../../stores/ramadanStore';
@@ -81,9 +82,10 @@ const SidebarInner = memo(function SidebarInner({ isCollapsed, onNavClick }: Sid
   const { user, logout } = useAuthStore();
   const ramadanEnabled = useRamadanStore((s) => s.enabled);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const isRTL = i18n.language === 'ar';
 
-  const handleLogout = () => { logout(); navigate('/login'); };
+  const handleLogout = () => { queryClient.clear(); logout(); navigate('/login'); };
   const toggleLang = () => i18n.changeLanguage(isRTL ? 'en' : 'ar');
 
   return (

@@ -7,6 +7,7 @@ import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { AppDatePicker } from '../components/ui/AppDatePicker';
 import { AppSelect } from '../components/ui/AppSelect';
+import { Modal } from '../components/ui/Modal';
 import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
@@ -114,86 +115,83 @@ export default function TasksPage() {
           <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('tasks.title')}</h2>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{tasks.length} {t('tasks.total')}</p>
         </div>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-            style={{ background: 'var(--accent)' }}
-          >
-            {t('tasks.createTask')}
-          </button>
-        )}
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+          style={{ background: 'var(--accent)' }}
+        >
+          {t('tasks.createTask')}
+        </button>
       </div>
 
-      {showForm && (
-        <div className="card rounded-xl p-6 mb-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            {editingTask ? t('tasks.editTask') : t('tasks.createTask')}
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
+      <Modal
+        open={showForm}
+        onClose={closeForm}
+        title={editingTask ? t('tasks.editTask') : t('tasks.createTask')}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.taskTitle')} *</label>
+            <input type="text" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder={t('tasks.titlePlaceholder')} />
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.description')}</label>
+            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} rows={3} placeholder={t('tasks.descriptionPlaceholder')} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.taskTitle')} *</label>
-              <input type="text" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder={t('tasks.titlePlaceholder')} />
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.dueDate')}</label>
+              <AppDatePicker value={form.dueDate ?? ''} onChange={(v) => setForm({ ...form, dueDate: v })} placeholder={t('tasks.dueDate')} />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.description')}</label>
-              <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-                className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} rows={3} placeholder={t('tasks.descriptionPlaceholder')} />
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.category')}</label>
+              <AppSelect
+                value={form.category ?? ''}
+                onChange={(v) => setForm({ ...form, category: v })}
+                placeholder={t('categories.placeholder')}
+                options={[
+                  { value: '', label: t('categories.placeholder') },
+                  { value: 'Work', label: t('categories.work') },
+                  { value: 'Personal', label: t('categories.personal') },
+                  { value: 'Health', label: t('categories.health') },
+                  { value: 'Finance', label: t('categories.finance') },
+                  { value: 'Shopping', label: t('categories.shopping') },
+                  { value: 'Learning', label: t('categories.learning') },
+                  { value: 'Other', label: t('categories.other') },
+                ]}
+              />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.dueDate')}</label>
-                <AppDatePicker value={form.dueDate ?? ''} onChange={(v) => setForm({ ...form, dueDate: v })} placeholder={t('tasks.dueDate')} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.category')}</label>
-                <AppSelect
-                  value={form.category ?? ''}
-                  onChange={(v) => setForm({ ...form, category: v })}
-                  placeholder={t('categories.placeholder')}
-                  options={[
-                    { value: '', label: t('categories.placeholder') },
-                    { value: 'Work', label: t('categories.work') },
-                    { value: 'Personal', label: t('categories.personal') },
-                    { value: 'Health', label: t('categories.health') },
-                    { value: 'Finance', label: t('categories.finance') },
-                    { value: 'Shopping', label: t('categories.shopping') },
-                    { value: 'Learning', label: t('categories.learning') },
-                    { value: 'Other', label: t('categories.other') },
-                  ]}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.priority')}</label>
-                <AppSelect
-                  value={form.priority ?? ''}
-                  onChange={(v) => setForm({ ...form, priority: v })}
-                  placeholder={t('tasks.priority')}
-                  options={[
-                    { value: '', label: t('tasks.priorityNone') },
-                    { value: 'High', label: t('tasks.priorityHigh') },
-                    { value: 'Medium', label: t('tasks.priorityMedium') },
-                    { value: 'Low', label: t('tasks.priorityLow') },
-                  ]}
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('tasks.priority')}</label>
+              <AppSelect
+                value={form.priority ?? ''}
+                onChange={(v) => setForm({ ...form, priority: v })}
+                placeholder={t('tasks.priority')}
+                options={[
+                  { value: '', label: t('tasks.priorityNone') },
+                  { value: 'High', label: t('tasks.priorityHigh') },
+                  { value: 'Medium', label: t('tasks.priorityMedium') },
+                  { value: 'Low', label: t('tasks.priorityLow') },
+                ]}
+              />
             </div>
-            <div className="flex justify-end gap-2 pt-1">
-              <button type="button" onClick={closeForm}
-                className="px-4 py-2 rounded-lg text-sm font-semibold"
-                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
-                {t('tasks.cancel')}
-              </button>
-              <button type="submit" disabled={isSaving}
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
-                style={{ background: 'var(--accent)' }}>
-                {isSaving ? <><Spinner size="sm" />{editingTask ? t('common.saving') : t('tasks.creating')}</> : editingTask ? t('common.saveChanges') : t('tasks.createTask')}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" onClick={closeForm}
+              className="px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+              {t('tasks.cancel')}
+            </button>
+            <button type="submit" disabled={isSaving}
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+              style={{ background: 'var(--accent)' }}>
+              {isSaving ? <><Spinner size="sm" />{editingTask ? t('common.saving') : t('tasks.creating')}</> : editingTask ? t('common.saveChanges') : t('tasks.createTask')}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Search + filter */}
       <div className="flex flex-col gap-3 mb-5">

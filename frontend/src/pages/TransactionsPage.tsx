@@ -7,6 +7,7 @@ import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { AppDatePicker } from '../components/ui/AppDatePicker';
 import { AppSelect } from '../components/ui/AppSelect';
+import { Modal } from '../components/ui/Modal';
 import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
@@ -106,15 +107,13 @@ export default function TransactionsPage() {
           <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('transactions.title')}</h2>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{all.length} {t('transactions.entries')}</p>
         </div>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-            style={{ background: 'var(--accent)' }}
-          >
-            {t('transactions.addTransaction')}
-          </button>
-        )}
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+          style={{ background: 'var(--accent)' }}
+        >
+          {t('transactions.addTransaction')}
+        </button>
       </div>
 
       {/* Summary cards */}
@@ -131,98 +130,94 @@ export default function TransactionsPage() {
         ))}
       </div>
 
-      {/* Create / Edit form */}
-      {showForm && (
-        <div className="card rounded-xl p-6 mb-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            {editingTx ? t('transactions.editTransaction') : t('transactions.addTransaction')}
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Type selector */}
-            <div className="flex gap-2">
-              {(['Income', 'Expense'] as TransactionType[]).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setForm({ ...form, type, category: '' })}
-                  className="flex-1 py-2 rounded-lg text-sm font-semibold"
-                  style={{
-                    background: form.type === type ? (type === 'Income' ? 'var(--success)' : 'var(--danger)') : 'var(--bg-subtle)',
-                    color: form.type === type ? '#fff' : 'var(--text-secondary)',
-                  }}
-                >
-                  {type === 'Income' ? t('transactions.income') : t('transactions.expense')}
-                </button>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.amount')} *</label>
-                <input
-                  type="number" required min="0.01" step="0.01" value={form.amount || ''}
-                  onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
-                  className={inputCls} style={inputStyle} onFocus={focusIn} onBlur={focusOut} placeholder="0.00"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.date')} *</label>
-                <AppDatePicker value={form.date} onChange={(v) => setForm({ ...form, date: v })} required />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.category')}</label>
-                <AppSelect
-                  value={form.category ?? ''}
-                  onChange={(v) => setForm({ ...form, category: v })}
-                  placeholder={t('categories.placeholder')}
-                  options={form.type === 'Income' ? [
-                    { value: '', label: t('categories.placeholder') },
-                    { value: 'Salary', label: t('categories.salary') },
-                    { value: 'Freelance', label: t('categories.freelance') },
-                    { value: 'Business', label: t('categories.business') },
-                    { value: 'Investment', label: t('categories.investment') },
-                    { value: 'Gift', label: t('categories.gift') },
-                    { value: 'Other', label: t('categories.other') },
-                  ] : [
-                    { value: '', label: t('categories.placeholder') },
-                    { value: 'Food & Dining', label: t('categories.foodDining') },
-                    { value: 'Transport', label: t('categories.transport') },
-                    { value: 'Shopping', label: t('categories.shopping') },
-                    { value: 'Entertainment', label: t('categories.entertainment') },
-                    { value: 'Health', label: t('categories.health') },
-                    { value: 'Utilities', label: t('categories.utilities') },
-                    { value: 'Education', label: t('categories.education') },
-                    { value: 'Rent', label: t('categories.rent') },
-                    { value: 'Other', label: t('categories.other') },
-                  ]}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.notes')}</label>
-                <input
-                  type="text" value={form.notes ?? ''}
-                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  className={inputCls} style={inputStyle} onFocus={focusIn} onBlur={focusOut}
-                  placeholder={t('transactions.notesPlaceholder')}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-1">
-              <button type="button" onClick={closeForm}
-                className="px-4 py-2 rounded-lg text-sm font-semibold"
-                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
-                {t('common.cancel')}
+      {/* Create / Edit modal */}
+      <Modal
+        open={showForm}
+        onClose={closeForm}
+        title={editingTx ? t('transactions.editTransaction') : t('transactions.addTransaction')}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex gap-2">
+            {(['Income', 'Expense'] as TransactionType[]).map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setForm({ ...form, type, category: '' })}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold"
+                style={{
+                  background: form.type === type ? (type === 'Income' ? 'var(--success)' : 'var(--danger)') : 'var(--bg-subtle)',
+                  color: form.type === type ? '#fff' : 'var(--text-secondary)',
+                }}
+              >
+                {type === 'Income' ? t('transactions.income') : t('transactions.expense')}
               </button>
-              <button type="submit" disabled={isSaving}
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
-                style={{ background: 'var(--accent)' }}>
-                {isSaving ? <><Spinner size="sm" />{editingTx ? t('common.saving') : t('transactions.adding')}</> : editingTx ? t('common.saveChanges') : t('transactions.addTransaction')}
-              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.amount')} *</label>
+              <input
+                type="number" required min="0.01" step="0.01" value={form.amount || ''}
+                onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
+                className={inputCls} style={inputStyle} onFocus={focusIn} onBlur={focusOut} placeholder="0.00"
+              />
             </div>
-          </form>
-        </div>
-      )}
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.date')} *</label>
+              <AppDatePicker value={form.date} onChange={(v) => setForm({ ...form, date: v })} required />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.category')}</label>
+              <AppSelect
+                value={form.category ?? ''}
+                onChange={(v) => setForm({ ...form, category: v })}
+                placeholder={t('categories.placeholder')}
+                options={form.type === 'Income' ? [
+                  { value: '', label: t('categories.placeholder') },
+                  { value: 'Salary', label: t('categories.salary') },
+                  { value: 'Freelance', label: t('categories.freelance') },
+                  { value: 'Business', label: t('categories.business') },
+                  { value: 'Investment', label: t('categories.investment') },
+                  { value: 'Gift', label: t('categories.gift') },
+                  { value: 'Other', label: t('categories.other') },
+                ] : [
+                  { value: '', label: t('categories.placeholder') },
+                  { value: 'Food & Dining', label: t('categories.foodDining') },
+                  { value: 'Transport', label: t('categories.transport') },
+                  { value: 'Shopping', label: t('categories.shopping') },
+                  { value: 'Entertainment', label: t('categories.entertainment') },
+                  { value: 'Health', label: t('categories.health') },
+                  { value: 'Utilities', label: t('categories.utilities') },
+                  { value: 'Education', label: t('categories.education') },
+                  { value: 'Rent', label: t('categories.rent') },
+                  { value: 'Other', label: t('categories.other') },
+                ]}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('transactions.notes')}</label>
+              <input
+                type="text" value={form.notes ?? ''}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                className={inputCls} style={inputStyle} onFocus={focusIn} onBlur={focusOut}
+                placeholder={t('transactions.notesPlaceholder')}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" onClick={closeForm}
+              className="px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+              {t('common.cancel')}
+            </button>
+            <button type="submit" disabled={isSaving}
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+              style={{ background: 'var(--accent)' }}>
+              {isSaving ? <><Spinner size="sm" />{editingTx ? t('common.saving') : t('transactions.adding')}</> : editingTx ? t('common.saveChanges') : t('transactions.addTransaction')}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Search + Filter */}
       <div className="flex flex-col gap-3 mb-4">

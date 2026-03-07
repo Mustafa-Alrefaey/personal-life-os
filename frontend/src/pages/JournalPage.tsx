@@ -6,6 +6,7 @@ import type { JournalEntry } from '../types/journal';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { AppDatePicker } from '../components/ui/AppDatePicker';
+import { Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
@@ -78,62 +79,60 @@ export default function JournalPage() {
             {t('journal.entries_count', { count: filtered.length })}
           </p>
         </div>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-            style={{ background: 'var(--accent)' }}
-          >
-            {t('journal.newEntry')}
-          </button>
-        )}
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+          style={{ background: 'var(--accent)' }}
+        >
+          {t('journal.newEntry')}
+        </button>
       </div>
 
-      {showForm && (
-        <div className="card rounded-xl p-6 mb-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            {editEntry ? t('journal.editEntry') : t('journal.newEntry')}
-          </h3>
-          <form onSubmit={(e) => {
-              e.preventDefault();
-              if (!form.date || !form.notes.trim()) { showToast(t('common.requiredField'), 'error'); return; }
-              editEntry ? updateMutation.mutate() : createMutation.mutate();
-            }} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('journal.date')} *</label>
-              <div className="w-full sm:w-56">
-                <AppDatePicker value={form.date} onChange={(v) => setForm({ ...form, date: v })} required />
-              </div>
+      <Modal
+        open={showForm}
+        onClose={handleCancel}
+        title={editEntry ? t('journal.editEntry') : t('journal.newEntry')}
+        maxWidth="600px"
+      >
+        <form onSubmit={(e) => {
+            e.preventDefault();
+            if (!form.date || !form.notes.trim()) { showToast(t('common.requiredField'), 'error'); return; }
+            editEntry ? updateMutation.mutate() : createMutation.mutate();
+          }} className="space-y-4">
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('journal.date')} *</label>
+            <div className="w-full sm:w-56">
+              <AppDatePicker value={form.date} onChange={(v) => setForm({ ...form, date: v })} required />
             </div>
-            <div>
-              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('journal.notes')} *</label>
-              <textarea
-                required rows={8} value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all resize-y"
-                style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
-                onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
-                onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
-                placeholder={t('journal.notesPlaceholder')}
-              />
-            </div>
-            <div className="flex justify-end gap-2 pt-1">
-              <button type="button" onClick={handleCancel}
-                className="px-4 py-2 rounded-lg text-sm font-semibold"
-                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
-                {t('journal.cancel')}
-              </button>
-              <button type="submit" disabled={createMutation.isPending || updateMutation.isPending}
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
-                style={{ background: 'var(--accent)' }}>
-                {(createMutation.isPending || updateMutation.isPending)
-                  ? <><Spinner size="sm" />{t('journal.saving')}</>
-                  : editEntry ? t('journal.saveChanges') : t('journal.save')}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+          </div>
+          <div>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('journal.notes')} *</label>
+            <textarea
+              required rows={8} value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              className="w-full px-3 py-2.5 rounded-lg text-sm outline-none transition-all resize-y"
+              style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-primary)' }}
+              onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent)'; }}
+              onBlur={(e) => { e.target.style.borderColor = 'var(--border-default)'; e.target.style.boxShadow = 'none'; }}
+              placeholder={t('journal.notesPlaceholder')}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" onClick={handleCancel}
+              className="px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+              {t('journal.cancel')}
+            </button>
+            <button type="submit" disabled={createMutation.isPending || updateMutation.isPending}
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+              style={{ background: 'var(--accent)' }}>
+              {(createMutation.isPending || updateMutation.isPending)
+                ? <><Spinner size="sm" />{t('journal.saving')}</>
+                : editEntry ? t('journal.saveChanges') : t('journal.save')}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Search + Date Filter */}
       <div className="flex flex-col gap-3 mb-5">

@@ -8,6 +8,7 @@ import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
 import { AppDatePicker } from '../components/ui/AppDatePicker';
 import { AppSelect } from '../components/ui/AppSelect';
+import { Modal } from '../components/ui/Modal';
 import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
@@ -122,85 +123,82 @@ export default function ReceiptsPage() {
             {filtered.length} · {t('receipts.total')}: EGP {totalAmount.toFixed(2)}
           </p>
         </div>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
-            style={{ background: 'var(--accent)' }}
-          >
-            {t('receipts.upload')}
-          </button>
-        )}
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+          style={{ background: 'var(--accent)' }}
+        >
+          {t('receipts.upload')}
+        </button>
       </div>
 
-      {showForm && (
-        <div className="card rounded-xl p-6 mb-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-            {editingReceipt ? t('receipts.editReceipt') : t('receipts.upload')}
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.receiptTitle')} *</label>
-                <input type="text" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder={t('receipts.titlePlaceholder')} />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.amount')} *</label>
-                <input type="number" required min="0" step="0.01" value={form.amount || ''}
-                  onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
-                  className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder="0.00" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.date')} *</label>
-                <AppDatePicker value={form.date} onChange={(v) => setForm({ ...form, date: v })} required />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.category')}</label>
-                <AppSelect
-                  value={form.category ?? ''}
-                  onChange={(v) => setForm({ ...form, category: v })}
-                  placeholder={t('categories.placeholder')}
-                  options={[
-                    { value: '', label: t('categories.placeholder') },
-                    { value: 'Food & Dining', label: t('categories.foodDining') },
-                    { value: 'Transport', label: t('categories.transport') },
-                    { value: 'Shopping', label: t('categories.shopping') },
-                    { value: 'Entertainment', label: t('categories.entertainment') },
-                    { value: 'Health', label: t('categories.health') },
-                    { value: 'Utilities', label: t('categories.utilities') },
-                    { value: 'Education', label: t('categories.education') },
-                    { value: 'Other', label: t('categories.other') },
-                  ]}
-                />
-              </div>
+      <Modal
+        open={showForm}
+        onClose={closeForm}
+        title={editingReceipt ? t('receipts.editReceipt') : t('receipts.upload')}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.receiptTitle')} *</label>
+              <input type="text" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder={t('receipts.titlePlaceholder')} />
             </div>
-            {!editingReceipt && (
-              <div>
-                <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.image')} *</label>
-                <input
-                  ref={fileInputRef} type="file" required accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-                  className="w-full text-sm rounded-lg px-3 py-2"
-                  style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
-                />
-              </div>
-            )}
-            <div className="flex justify-end gap-2 pt-1">
-              <button type="button" onClick={closeForm}
-                className="px-4 py-2 rounded-lg text-sm font-semibold"
-                style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
-                {t('receipts.cancel')}
-              </button>
-              <button type="submit" disabled={isSaving || (!editingReceipt && !imageFile)}
-                className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
-                style={{ background: 'var(--accent)' }}>
-                {isSaving ? <><Spinner size="sm" />{editingReceipt ? t('common.saving') : t('receipts.uploading')}</> : editingReceipt ? t('common.saveChanges') : t('receipts.upload')}
-              </button>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.amount')} *</label>
+              <input type="number" required min="0" step="0.01" value={form.amount || ''}
+                onChange={(e) => setForm({ ...form, amount: parseFloat(e.target.value) || 0 })}
+                className={inputCls} style={{ ...inputStyle }} onFocus={focusIn} onBlur={focusOut} placeholder="0.00" />
             </div>
-          </form>
-        </div>
-      )}
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.date')} *</label>
+              <AppDatePicker value={form.date} onChange={(v) => setForm({ ...form, date: v })} required />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.category')}</label>
+              <AppSelect
+                value={form.category ?? ''}
+                onChange={(v) => setForm({ ...form, category: v })}
+                placeholder={t('categories.placeholder')}
+                options={[
+                  { value: '', label: t('categories.placeholder') },
+                  { value: 'Food & Dining', label: t('categories.foodDining') },
+                  { value: 'Transport', label: t('categories.transport') },
+                  { value: 'Shopping', label: t('categories.shopping') },
+                  { value: 'Entertainment', label: t('categories.entertainment') },
+                  { value: 'Health', label: t('categories.health') },
+                  { value: 'Utilities', label: t('categories.utilities') },
+                  { value: 'Education', label: t('categories.education') },
+                  { value: 'Other', label: t('categories.other') },
+                ]}
+              />
+            </div>
+          </div>
+          {!editingReceipt && (
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>{t('receipts.image')} *</label>
+              <input
+                ref={fileInputRef} type="file" required accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                className="w-full text-sm rounded-lg px-3 py-2"
+                style={{ background: 'var(--bg-input)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}
+              />
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-1">
+            <button type="button" onClick={closeForm}
+              className="px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}>
+              {t('receipts.cancel')}
+            </button>
+            <button type="submit" disabled={isSaving || (!editingReceipt && !imageFile)}
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 disabled:opacity-60"
+              style={{ background: 'var(--accent)' }}>
+              {isSaving ? <><Spinner size="sm" />{editingReceipt ? t('common.saving') : t('receipts.uploading')}</> : editingReceipt ? t('common.saveChanges') : t('receipts.upload')}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Search + Date Filter */}
       <div className="flex flex-col gap-3 mb-5">
