@@ -43,7 +43,9 @@
     "noRecentTasks": "لا توجد مهام حديثة",
     "noUpcomingBills": "لا توجد فواتير قادمة",
     "loading": "جارٍ تحميل لوحة التحكم…",
-    "error": "فشل تحميل بيانات لوحة التحكم"
+    "error": "فشل تحميل بيانات لوحة التحكم",
+    "financialOverview": "النظرة المالية",
+    "taskProgress": "تقدم المهام"
   },
   "tasks": {
     "title": "المهام",
@@ -81,7 +83,8 @@
     "priorityMedium": "متوسطة",
     "priorityLow": "منخفضة",
     "priorityNone": "بدون",
-    "filterPriorityAll": "كل الأولويات"
+    "filterPriorityAll": "كل الأولويات",
+    "markedPending": "تمّ إعادة المهمة إلى قيد الانتظار"
   },
   "bills": {
     "title": "الفواتير",
@@ -107,6 +110,8 @@
     "status_overdue": "متأخرة",
     "created": "تمّت إضافة الفاتورة",
     "paid": "تمّت الدفع",
+    "unpaid": "تمّ إلغاء الدفع",
+    "markUnpaid": "إلغاء الدفع",
     "deleted": "تمّ حذف الفاتورة",
     "updated": "تمّ تحديث الفاتورة",
     "namePlaceholder": "مثال: الكهرباء",

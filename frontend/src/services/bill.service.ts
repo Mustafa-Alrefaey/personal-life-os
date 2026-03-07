@@ -23,6 +23,11 @@ export const billService = {
     return response.data;
   },
 
+  async markAsUnpaid(id: number): Promise<ApiResponse<object>> {
+    const response = await api.post<ApiResponse<object>>(`/bills/${id}/unpay`);
+    return response.data;
+  },
+
   async deleteBill(id: number): Promise<ApiResponse<object>> {
     const response = await api.delete<ApiResponse<object>>(`/bills/${id}`);
     return response.data;

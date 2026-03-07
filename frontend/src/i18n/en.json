@@ -43,7 +43,9 @@
     "noRecentTasks": "No recent tasks",
     "noUpcomingBills": "No upcoming bills",
     "loading": "Loading dashboard…",
-    "error": "Failed to load dashboard data"
+    "error": "Failed to load dashboard data",
+    "financialOverview": "Financial Overview",
+    "taskProgress": "Task Progress"
   },
   "tasks": {
     "title": "Tasks",
@@ -81,7 +83,8 @@
     "priorityMedium": "Medium",
     "priorityLow": "Low",
     "priorityNone": "None",
-    "filterPriorityAll": "All Priorities"
+    "filterPriorityAll": "All Priorities",
+    "markedPending": "Task marked as pending"
   },
   "bills": {
     "title": "Bills",
@@ -107,6 +110,8 @@
     "status_overdue": "Overdue",
     "created": "Bill added",
     "paid": "Bill marked as paid",
+    "unpaid": "Bill marked as unpaid",
+    "markUnpaid": "Mark Unpaid",
     "deleted": "Bill deleted",
     "updated": "Bill updated",
     "namePlaceholder": "e.g. Electricity",

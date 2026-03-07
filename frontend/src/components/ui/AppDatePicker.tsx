@@ -31,13 +31,13 @@ const DateInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInp
         onBlur?.(e);
       }}
       placeholder={placeholder}
-      className="w-full rounded-lg text-sm outline-none transition-all cursor-pointer"
+      className="w-full rounded-lg text-sm outline-none transition-all cursor-pointer datepicker-input"
       style={{
         background: 'var(--bg-input)',
         border: '1px solid var(--border-default)',
         color: 'var(--text-primary)',
         paddingInlineStart: '2.25rem',
-        paddingInlineEnd: '0.75rem',
+        paddingInlineEnd: '2rem',
         paddingTop: '0.5625rem',
         paddingBottom: '0.5625rem',
       }}
@@ -75,8 +75,10 @@ export function AppDatePicker({ value, onChange, placeholder, required, minDate 
           }
         }}
         dateFormat="MMM d, yyyy"
-        customInput={<DateInput placeholder={placeholder ?? t('common.selectDate')} required={required} />}
+        placeholderText={placeholder ?? t('common.selectDate')}
+        customInput={<DateInput />}
         minDate={minDate}
+        required={required}
         autoComplete="off"
         wrapperClassName="w-full"
         popperPlacement="bottom-start"
@@ -85,6 +87,21 @@ export function AppDatePicker({ value, onChange, placeholder, required, minDate 
           { name: 'preventOverflow', options: { padding: 8 } } as any,
         ]}
       />
+      {/* Clear button — only shown when a date is selected */}
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          className="absolute inset-y-0 end-0 flex items-center pe-2.5 z-10"
+          style={{ color: 'var(--text-muted)' }}
+          tabIndex={-1}
+          title="Clear date"
+        >
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      )}
     </div>
   );
 }

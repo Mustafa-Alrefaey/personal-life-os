@@ -103,6 +103,26 @@ public class BillsController : BaseApiController
         }
     }
 
+    [HttpPost("{id}/unpay")]
+    public async Task<ActionResult<ApiResponse<object>>> MarkAsUnpaid(int id)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var existing = await _billService.GetBillByIdAsync(id);
+            if (existing == null)
+                return NotFound(ApiResponse<object>.ErrorResponse("Bill not found", new List<string> { $"Bill with ID {id} does not exist" }));
+            if (existing.UserId != userId)
+                return Forbid();
+            await _billService.MarkBillAsUnpaidAsync(id, userId);
+            return Ok(ApiResponse<object>.SuccessResponse(null, "Bill marked as unpaid"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
+        }
+    }
+
     [HttpPost("{id}/pay")]
     public async Task<ActionResult<ApiResponse<object>>> MarkAsPaid(int id)
     {

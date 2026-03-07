@@ -26,8 +26,10 @@ export function RamadanBanner() {
   if (!enabled) return null;
 
   return (
+    <div style={{ padding: '1rem 1.25rem 0' }}>
+    <div className="max-w-5xl mx-auto">
     <div
-      className="relative overflow-hidden rounded-xl mb-6"
+      className="relative overflow-hidden rounded-xl mb-0"
       style={{
         background: 'linear-gradient(135deg, #0c0623 0%, #1a0d52 35%, #2a1260 65%, #0c0623 100%)',
         border: '1px solid rgba(251, 191, 36, 0.22)',
@@ -80,6 +82,8 @@ export function RamadanBanner() {
           </p>
         </div>
       </div>
+    </div>
+    </div>
     </div>
   );
 }

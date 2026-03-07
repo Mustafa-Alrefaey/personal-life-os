@@ -72,6 +72,17 @@ public class BillService
         }
     }
 
+    public async Task MarkBillAsUnpaidAsync(int id, string userId)
+    {
+        var bill = await _repository.GetByIdAsync(id);
+        if (bill != null && bill.UserId == userId)
+        {
+            bill.StatusCode = GeneralStatuses.PENDING;
+            bill.UpdatedBy = userId;
+            await _repository.UpdateAsync(bill);
+        }
+    }
+
     public async Task DeleteBillAsync(int id, string userId)
     {
         await _repository.DeleteAsync(id, userId);

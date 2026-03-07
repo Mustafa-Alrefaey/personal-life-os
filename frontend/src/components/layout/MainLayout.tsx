@@ -310,10 +310,12 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
           <DarkModeToggle />
         </header>
 
+        {/* Ramadan banner — stable outside keyed main so it doesn't re-animate on navigation */}
+        <RamadanBanner />
+
         {/* Page content — key re-triggers animation on route change */}
         <main key={location.pathname} className="flex-1 page-enter" style={{ padding: '1.5rem 1.25rem' }}>
           <div className="max-w-5xl mx-auto page-frame">
-            <RamadanBanner />
             {children}
           </div>
         </main>

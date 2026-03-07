@@ -63,6 +63,12 @@ export default function BillsPage() {
     onError: () => setPayingId(null),
   });
 
+  const unpayMutation = useMutation({
+    mutationFn: (id: number) => billService.markAsUnpaid(id),
+    onSuccess: () => { invalidate(); setPayingId(null); showToast(t('bills.unpaid'), 'success'); },
+    onError: () => setPayingId(null),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id: number) => billService.deleteBill(id),
     onSuccess: () => { invalidate(); setDeleteTarget(null); showToast(t('bills.deleted'), 'success'); },
@@ -226,25 +232,48 @@ export default function BillsPage() {
             return (
               <div key={bill.id} className="interactive-card rounded-xl p-4 sm:p-5 flex gap-3 items-center"
                 style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-                {/* Checkbox */}
+                {/* Checkbox — toggles paid/unpaid, circular like task checkboxes */}
                 <button
-                  onClick={() => { if (bill.statusCode !== 'Paid') { setPayingId(bill.id); payMutation.mutate(bill.id); } }}
-                  disabled={bill.statusCode === 'Paid' || payingId === bill.id}
-                  title={bill.statusCode === 'Paid' ? t('bills.status_paid') : t('bills.pay')}
-                  className="w-5 h-5 rounded shrink-0 flex items-center justify-center border-2 transition-all disabled:cursor-default"
-                  style={{
-                    borderColor: bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--border-default)',
-                    background: bill.statusCode === 'Paid' ? 'var(--success)' : 'transparent',
-                    color: '#fff',
+                  type="button"
+                  onClick={() => {
+                    setPayingId(bill.id);
+                    if (bill.statusCode === 'Paid') {
+                      unpayMutation.mutate(bill.id);
+                    } else {
+                      payMutation.mutate(bill.id);
+                    }
                   }}
-                  onMouseEnter={(e) => { if (bill.statusCode !== 'Paid') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--success)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--success-bg)'; } }}
-                  onMouseLeave={(e) => { if (bill.statusCode !== 'Paid') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; } }}
+                  disabled={payingId === bill.id}
+                  title={bill.statusCode === 'Paid' ? t('bills.markUnpaid') : t('bills.pay')}
+                  className="mt-0.5 w-6 h-6 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
+                  style={{
+                    borderColor: bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--text-muted)',
+                    background:  bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--bg-subtle)',
+                    color: bill.statusCode === 'Paid' ? '#fff' : 'var(--text-muted)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (bill.statusCode !== 'Paid') {
+                      const el = e.currentTarget as HTMLButtonElement;
+                      el.style.borderColor = 'var(--success)';
+                      el.style.background  = 'var(--success-bg)';
+                      el.style.color       = 'var(--success)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (bill.statusCode !== 'Paid') {
+                      const el = e.currentTarget as HTMLButtonElement;
+                      el.style.borderColor = 'var(--text-muted)';
+                      el.style.background  = 'var(--bg-subtle)';
+                      el.style.color       = 'var(--text-muted)';
+                    }
+                  }}
                 >
                   {payingId === bill.id
                     ? <Spinner size="sm" />
-                    : bill.statusCode === 'Paid'
-                      ? <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
-                      : null}
+                    : <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/>
+                      </svg>
+                  }
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-0.5">
@@ -260,18 +289,22 @@ export default function BillsPage() {
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>EGP {bill.amount.toFixed(2)}</span>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1">
                     <button
+                      type="button"
                       onClick={() => startEdit(bill)}
-                      className="px-2.5 py-1.5 rounded-lg text-xs font-semibold"
+                      title={t('bills.edit')}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
                       style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
-                      {t('bills.edit')}
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     </button>
                     <button
+                      type="button"
                       onClick={() => setDeleteTarget(bill.id)}
-                      className="px-2.5 py-1.5 rounded-lg text-xs font-semibold"
+                      title={t('bills.delete')}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
                       style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
-                      {t('bills.delete')}
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     </button>
                   </div>
                 </div>
