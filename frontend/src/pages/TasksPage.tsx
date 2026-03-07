@@ -261,26 +261,47 @@ export default function TasksPage() {
           {filtered.map((task) => (
             <div key={task.id} className="interactive-card rounded-xl p-4 sm:p-5 flex gap-3 items-start"
               style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-              {/* Checkbox */}
-              <button
-                onClick={() => { if (task.statusCode !== 'Completed') { setCompletingId(task.id); completeMutation.mutate(task.id); } }}
-                disabled={task.statusCode === 'COMPLETED' || completingId === task.id}
-                title={task.statusCode === 'COMPLETED' ? t('tasks.filterCompleted') : t('tasks.complete')}
-                className="mt-0.5 w-5 h-5 rounded-full shrink-0 flex items-center justify-center border-2 transition-all disabled:cursor-default"
-                style={{
-                  borderColor: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'var(--border-default)',
-                  background: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'transparent',
-                  color: '#fff',
-                }}
-                onMouseEnter={(e) => { if (task.statusCode !== 'Completed') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--success)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--success-bg)'; } }}
-                onMouseLeave={(e) => { if (task.statusCode !== 'Completed') { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border-default)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; } }}
-              >
-                {completingId === task.id
-                  ? <Spinner size="sm" />
-                  : task.statusCode === 'COMPLETED'
-                    ? <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
-                    : null}
-              </button>
+              {/* Complete checkbox */}
+              {(() => {
+                const done = task.statusCode === 'COMPLETED';
+                return (
+                  <button
+                    onClick={() => { if (!done) { setCompletingId(task.id); completeMutation.mutate(task.id); } }}
+                    disabled={done || completingId === task.id}
+                    title={done ? t('tasks.filterCompleted') : t('tasks.complete')}
+                    className="mt-0.5 w-6 h-6 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
+                    style={{
+                      borderColor: done ? 'var(--success)' : 'var(--text-muted)',
+                      background:  done ? 'var(--success)' : 'var(--bg-subtle)',
+                      color:       done ? '#fff' : 'var(--text-muted)',
+                      cursor:      done ? 'default' : 'pointer',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!done) {
+                        const el = e.currentTarget as HTMLButtonElement;
+                        el.style.borderColor = 'var(--success)';
+                        el.style.background  = 'var(--success-bg)';
+                        el.style.color       = 'var(--success)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!done) {
+                        const el = e.currentTarget as HTMLButtonElement;
+                        el.style.borderColor = 'var(--text-muted)';
+                        el.style.background  = 'var(--bg-subtle)';
+                        el.style.color       = 'var(--text-muted)';
+                      }
+                    }}
+                  >
+                    {completingId === task.id
+                      ? <Spinner size="sm" />
+                      : <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    }
+                  </button>
+                );
+              })()}
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)', textDecoration: task.statusCode === 'COMPLETED' ? 'line-through' : 'none', opacity: task.statusCode === 'COMPLETED' ? 0.6 : 1 }}>{task.title}</span>
