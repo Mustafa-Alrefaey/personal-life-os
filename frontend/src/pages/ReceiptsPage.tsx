@@ -33,6 +33,7 @@ export default function ReceiptsPage() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageChangeRef = useRef<HTMLInputElement>(null);
 
@@ -240,72 +241,98 @@ export default function ReceiptsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((receipt) => (
-            <div key={receipt.id} className="interactive-card rounded-xl overflow-hidden" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-              {receipt.imagePath && (
-                <div className="relative group">
-                  <img
-                    src={`${API_BASE_URL}/uploads/receipts/${receipt.imagePath}`}
-                    alt={receipt.title}
-                    className="w-full h-40 object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => imageChangeRef.current?.click()}
-                    className="absolute bottom-2 end-2 px-2.5 py-1 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ background: 'var(--bg-surface)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}
-                  >
-                    {updateImageMutation.isPending ? <Spinner size="sm" /> : t('receipts.changeImage')}
-                  </button>
-                  <input
-                    ref={imageChangeRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleImageChange(receipt.id, file);
-                      e.target.value = '';
-                    }}
-                  />
-                </div>
-              )}
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-1">
-                  <p className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{receipt.title}</p>
-                  <span className="text-sm font-bold shrink-0 ms-2" style={{ color: 'var(--text-primary)' }}>EGP {receipt.amount.toFixed(2)}</span>
-                </div>
-                <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{new Date(receipt.date).toLocaleDateString()}</p>
-                {receipt.category && (
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
-                    {t(CATEGORY_I18N_KEYS[receipt.category] ?? receipt.category)}
-                  </span>
-                )}
-                <div className="flex gap-2 mt-3">
-                  <button
-                    type="button"
-                    onClick={() => startEdit(receipt)}
-                    title={t('receipts.edit')}
-                    className="flex-1 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
-                    style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
-                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    {t('receipts.edit')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDeleteTarget(receipt.id)}
-                    title={t('receipts.delete')}
-                    className="flex-1 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
-                    style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
-                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    {t('receipts.delete')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-subtle)' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" style={{ background: 'var(--bg-surface)' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)' }}>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)', width: '60px' }}>{t('receipts.image')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{t('receipts.receiptTitle')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('receipts.category')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('receipts.date')}</th>
+                  <th className="px-4 py-3 text-end text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{t('receipts.amount')}</th>
+                  <th className="px-4 py-3 text-end text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)', width: '100px' }}>{t('common.actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((receipt, i) => (
+                  <tr key={receipt.id} className="transition-colors hover:bg-[var(--bg-subtle)]" style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}>
+                    <td className="px-4 py-2">
+                      {receipt.imagePath ? (
+                        <img
+                          src={`${API_BASE_URL}/uploads/receipts/${receipt.imagePath}`}
+                          alt={receipt.title}
+                          className="w-10 h-10 rounded-lg object-cover cursor-pointer transition-opacity hover:opacity-80"
+                          onClick={() => setPreviewImage({ src: `${API_BASE_URL}/uploads/receipts/${receipt.imagePath}`, title: receipt.title })}
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'var(--bg-subtle)' }}>
+                          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                          </svg>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{receipt.title}</span>
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      {receipt.category && (
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
+                          {t(CATEGORY_I18N_KEYS[receipt.category] ?? receipt.category)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {new Date(receipt.date).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-end">
+                      <span className="font-bold" style={{ color: 'var(--text-primary)' }}>EGP {receipt.amount.toFixed(2)}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1 justify-end">
+                        <button type="button" onClick={() => startEdit(receipt)} title={t('receipts.edit')}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </button>
+                        <button type="button"
+                          onClick={() => {
+                            imageChangeRef.current?.click();
+                            imageChangeRef.current?.setAttribute('data-receipt-id', String(receipt.id));
+                          }}
+                          title={t('receipts.changeImage')}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
+                          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                          </svg>
+                        </button>
+                        <button type="button" onClick={() => setDeleteTarget(receipt.id)} title={t('receipts.delete')}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+                          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <input
+            ref={imageChangeRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              const receiptId = parseInt(imageChangeRef.current?.getAttribute('data-receipt-id') ?? '0');
+              if (file && receiptId) handleImageChange(receiptId, file);
+              e.target.value = '';
+            }}
+          />
         </div>
       )}
 
@@ -317,6 +344,32 @@ export default function ReceiptsPage() {
         onConfirm={() => { if (deleteTarget !== null) deleteMutation.mutate(deleteTarget); }}
         onCancel={() => setDeleteTarget(null)}
       />
+
+      {/* Image Preview Lightbox */}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setPreviewImage(null)}
+        >
+          <button
+            className="absolute top-4 end-4 w-10 h-10 rounded-full flex items-center justify-center text-white bg-white/10 hover:bg-white/20 transition-colors"
+            onClick={() => setPreviewImage(null)}
+          >
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+          <div className="max-w-4xl max-h-[90vh] flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={previewImage.src}
+              alt={previewImage.title}
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+            />
+            <p className="text-white text-sm font-medium mt-3 text-center">{previewImage.title}</p>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 }

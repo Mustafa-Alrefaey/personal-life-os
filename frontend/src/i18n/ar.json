@@ -264,7 +264,9 @@
     "selectDate": "اختر تاريخاً",
     "dateFrom": "من",
     "dateTo": "إلى",
-    "clearFilters": "مسح"
+    "clearFilters": "مسح",
+    "actions": "إجراءات",
+    "status": "الحالة"
   },
   "ramadan": {
     "greeting": "رمضان كريم",

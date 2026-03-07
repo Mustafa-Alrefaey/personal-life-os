@@ -261,98 +261,90 @@ export default function TasksPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((task) => (
-            <div key={task.id} className="interactive-card rounded-xl p-4 sm:p-5 flex gap-3 items-start"
-              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-              {/* Complete / uncomplete toggle */}
-              <button
-                type="button"
-                onClick={() => {
-                  setCompletingId(task.id);
-                  if (task.statusCode === 'COMPLETED') {
-                    uncompleteMutation.mutate(task.id);
-                  } else {
-                    completeMutation.mutate(task.id);
-                  }
-                }}
-                disabled={completingId === task.id}
-                title={task.statusCode === 'COMPLETED' ? t('tasks.markPending') : t('tasks.complete')}
-                className="mt-0.5 w-6 h-6 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
-                style={{
-                  borderColor: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'var(--text-muted)',
-                  background:  task.statusCode === 'COMPLETED' ? 'var(--success)' : 'var(--bg-subtle)',
-                  color:       task.statusCode === 'COMPLETED' ? '#fff' : 'var(--text-muted)',
-                  cursor:      task.statusCode === 'COMPLETED' ? 'default' : 'pointer',
-                }}
-                onMouseEnter={(e) => {
-                  if (task.statusCode !== 'COMPLETED') {
-                    const el = e.currentTarget as HTMLButtonElement;
-                    el.style.borderColor = 'var(--success)';
-                    el.style.background  = 'var(--success-bg)';
-                    el.style.color       = 'var(--success)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (task.statusCode !== 'COMPLETED') {
-                    const el = e.currentTarget as HTMLButtonElement;
-                    el.style.borderColor = 'var(--text-muted)';
-                    el.style.background  = 'var(--bg-subtle)';
-                    el.style.color       = 'var(--text-muted)';
-                  }
-                }}
-              >
-                {completingId === task.id
-                  ? <Spinner size="sm" />
-                  : <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/>
-                    </svg>
-                }
-              </button>
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)', textDecoration: task.statusCode === 'COMPLETED' ? 'line-through' : 'none', opacity: task.statusCode === 'COMPLETED' ? 0.6 : 1 }}>{task.title}</span>
-                  {task.category && (
-                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
-                      {t(CATEGORY_I18N_KEYS[task.category] ?? task.category)}
-                    </span>
-                  )}
-                  {task.priority && (
-                    <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
-                      background: task.priority === 'High' ? 'var(--danger-bg)' : task.priority === 'Medium' ? 'var(--warning-bg)' : 'var(--success-bg)',
-                      color: task.priority === 'High' ? 'var(--danger)' : task.priority === 'Medium' ? 'var(--warning)' : 'var(--success)',
-                    }}>
-                      {task.priority === 'High' ? t('tasks.priorityHigh') : task.priority === 'Medium' ? t('tasks.priorityMedium') : t('tasks.priorityLow')}
-                    </span>
-                  )}
-                </div>
-                {task.description && <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{task.description}</p>}
-                {task.dueDate && (
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                    {t('tasks.dueDate')}: {new Date(task.dueDate).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => startEdit(task)}
-                  title={t('tasks.edit')}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                  style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeleteTarget(task.id)}
-                  title={t('tasks.delete')}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                  style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-subtle)' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" style={{ background: 'var(--bg-surface)' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)' }}>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)', width: '40px' }}></th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{t('tasks.taskTitle')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('tasks.category')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('tasks.priority')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden md:table-cell" style={{ color: 'var(--text-muted)' }}>{t('tasks.dueDate')}</th>
+                  <th className="px-4 py-3 text-end text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)', width: '100px' }}>{t('common.actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((task, i) => (
+                  <tr key={task.id} className="transition-colors hover:bg-[var(--bg-subtle)]" style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCompletingId(task.id);
+                          if (task.statusCode === 'COMPLETED') uncompleteMutation.mutate(task.id);
+                          else completeMutation.mutate(task.id);
+                        }}
+                        disabled={completingId === task.id}
+                        title={task.statusCode === 'COMPLETED' ? t('tasks.markPending') : t('tasks.complete')}
+                        className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
+                        style={{
+                          borderColor: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'var(--text-muted)',
+                          background: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'transparent',
+                          color: task.statusCode === 'COMPLETED' ? '#fff' : 'var(--text-muted)',
+                        }}
+                      >
+                        {completingId === task.id
+                          ? <Spinner size="sm" />
+                          : <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
+                        }
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-medium" style={{ color: 'var(--text-primary)', textDecoration: task.statusCode === 'COMPLETED' ? 'line-through' : 'none', opacity: task.statusCode === 'COMPLETED' ? 0.6 : 1 }}>
+                        {task.title}
+                      </span>
+                      {task.description && <p className="text-xs mt-0.5 truncate max-w-xs" style={{ color: 'var(--text-muted)' }}>{task.description}</p>}
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      {task.category && (
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)' }}>
+                          {t(CATEGORY_I18N_KEYS[task.category] ?? task.category)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      {task.priority && (
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
+                          background: task.priority === 'High' ? 'var(--danger-bg)' : task.priority === 'Medium' ? 'var(--warning-bg)' : 'var(--success-bg)',
+                          color: task.priority === 'High' ? 'var(--danger)' : task.priority === 'Medium' ? 'var(--warning)' : 'var(--success)',
+                        }}>
+                          {task.priority === 'High' ? t('tasks.priorityHigh') : task.priority === 'Medium' ? t('tasks.priorityMedium') : t('tasks.priorityLow')}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1 justify-end">
+                        <button type="button" onClick={() => startEdit(task)} title={t('tasks.edit')}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </button>
+                        <button type="button" onClick={() => setDeleteTarget(task.id)} title={t('tasks.delete')}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+                          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

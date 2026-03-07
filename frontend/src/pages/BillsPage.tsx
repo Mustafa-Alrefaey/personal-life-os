@@ -221,94 +221,89 @@ export default function BillsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((bill) => {
-            const isOverdue = bill.statusCode === 'PENDING' && new Date(bill.dueDate) < new Date();
-            const statusLabel = bill.statusCode === 'Paid' ? t('bills.status_paid') : isOverdue ? t('bills.status_overdue') : t('bills.status_pending');
-            const statusColor = bill.statusCode === 'Paid' ? 'var(--success)' : isOverdue ? 'var(--danger)' : 'var(--warning)';
-            const statusBg   = bill.statusCode === 'Paid' ? 'var(--success-bg)' : isOverdue ? 'var(--danger-bg)' : 'var(--warning-bg)';
-            return (
-              <div key={bill.id} className="interactive-card rounded-xl p-4 sm:p-5 flex gap-3 items-center"
-                style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-                {/* Checkbox — toggles paid/unpaid, circular like task checkboxes */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPayingId(bill.id);
-                    if (bill.statusCode === 'Paid') {
-                      unpayMutation.mutate(bill.id);
-                    } else {
-                      payMutation.mutate(bill.id);
-                    }
-                  }}
-                  disabled={payingId === bill.id}
-                  title={bill.statusCode === 'Paid' ? t('bills.markUnpaid') : t('bills.pay')}
-                  className="mt-0.5 w-6 h-6 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
-                  style={{
-                    borderColor: bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--text-muted)',
-                    background:  bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--bg-subtle)',
-                    color: bill.statusCode === 'Paid' ? '#fff' : 'var(--text-muted)',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (bill.statusCode !== 'Paid') {
-                      const el = e.currentTarget as HTMLButtonElement;
-                      el.style.borderColor = 'var(--success)';
-                      el.style.background  = 'var(--success-bg)';
-                      el.style.color       = 'var(--success)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (bill.statusCode !== 'Paid') {
-                      const el = e.currentTarget as HTMLButtonElement;
-                      el.style.borderColor = 'var(--text-muted)';
-                      el.style.background  = 'var(--bg-subtle)';
-                      el.style.color       = 'var(--text-muted)';
-                    }
-                  }}
-                >
-                  {payingId === bill.id
-                    ? <Spinner size="sm" />
-                    : <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/>
-                      </svg>
-                  }
-                </button>
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                    <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)', textDecoration: bill.statusCode === 'Paid' ? 'line-through' : 'none', opacity: bill.statusCode === 'Paid' ? 0.6 : 1 }}>{bill.name}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: statusBg, color: statusColor }}>
-                      {statusLabel}
-                    </span>
-                  </div>
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                    {t('common.due')}: {new Date(bill.dueDate).toLocaleDateString()}
-                    {bill.reminderDaysBefore > 0 && ` · ${bill.reminderDaysBefore}d ${t('bills.reminderLabel')}`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>EGP {bill.amount.toFixed(2)}</span>
-                  <div className="flex gap-1">
-                    <button
-                      type="button"
-                      onClick={() => startEdit(bill)}
-                      title={t('bills.edit')}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                      style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
-                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteTarget(bill.id)}
-                      title={t('bills.delete')}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                      style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
-                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-subtle)' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" style={{ background: 'var(--bg-surface)' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)' }}>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)', width: '40px' }}></th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{t('bills.name')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('common.status')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('bills.dueDate')}</th>
+                  <th className="px-4 py-3 text-end text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{t('bills.amount')}</th>
+                  <th className="px-4 py-3 text-end text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)', width: '100px' }}>{t('common.actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((bill, i) => {
+                  const isOverdue = bill.statusCode === 'PENDING' && new Date(bill.dueDate) < new Date();
+                  const statusLabel = bill.statusCode === 'Paid' ? t('bills.status_paid') : isOverdue ? t('bills.status_overdue') : t('bills.status_pending');
+                  const statusColor = bill.statusCode === 'Paid' ? 'var(--success)' : isOverdue ? 'var(--danger)' : 'var(--warning)';
+                  const statusBg   = bill.statusCode === 'Paid' ? 'var(--success-bg)' : isOverdue ? 'var(--danger-bg)' : 'var(--warning-bg)';
+                  return (
+                    <tr key={bill.id} className="transition-colors hover:bg-[var(--bg-subtle)]" style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}>
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPayingId(bill.id);
+                            if (bill.statusCode === 'Paid') unpayMutation.mutate(bill.id);
+                            else payMutation.mutate(bill.id);
+                          }}
+                          disabled={payingId === bill.id}
+                          title={bill.statusCode === 'Paid' ? t('bills.markUnpaid') : t('bills.pay')}
+                          className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
+                          style={{
+                            borderColor: bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--text-muted)',
+                            background: bill.statusCode === 'Paid' ? 'var(--success)' : 'transparent',
+                            color: bill.statusCode === 'Paid' ? '#fff' : 'var(--text-muted)',
+                          }}
+                        >
+                          {payingId === bill.id
+                            ? <Spinner size="sm" />
+                            : <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
+                          }
+                        </button>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-medium" style={{ color: 'var(--text-primary)', textDecoration: bill.statusCode === 'Paid' ? 'line-through' : 'none', opacity: bill.statusCode === 'Paid' ? 0.6 : 1 }}>
+                          {bill.name}
+                        </span>
+                        {bill.reminderDaysBefore > 0 && (
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{bill.reminderDaysBefore}d {t('bills.reminderLabel')}</p>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 hidden sm:table-cell">
+                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: statusBg, color: statusColor }}>
+                          {statusLabel}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 hidden sm:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>
+                        {new Date(bill.dueDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-end">
+                        <span className="font-bold" style={{ color: 'var(--text-primary)' }}>EGP {bill.amount.toFixed(2)}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1 justify-end">
+                          <button type="button" onClick={() => startEdit(bill)} title={t('bills.edit')}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                            style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                          </button>
+                          <button type="button" onClick={() => setDeleteTarget(bill.id)} title={t('bills.delete')}
+                            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                            style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+                            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

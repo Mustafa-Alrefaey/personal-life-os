@@ -266,7 +266,7 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      {/* List */}
+      {/* Table */}
       {isLoading ? <PageLoader message={t('transactions.loading')} /> : filtered.length === 0 ? (
         <div className="card rounded-xl p-12 text-center" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
           <p className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
@@ -277,61 +277,68 @@ export default function TransactionsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((tx) => (
-            <div
-              key={tx.id}
-              className="interactive-card flex items-center gap-4 px-4 py-3 rounded-xl"
-              style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}
-            >
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                style={{
-                  background: tx.type === 'Income' ? 'var(--success-bg)' : 'var(--danger-bg)',
-                  color: tx.type === 'Income' ? 'var(--success)' : 'var(--danger)',
-                }}
-              >
-                {tx.type === 'Income' ? '+' : '−'}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
-                  {tx.category ? t(CATEGORY_I18N_KEYS[tx.category] ?? tx.category) : (tx.type === 'Income' ? t('transactions.income') : t('transactions.expense'))}
-                </p>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                  {new Date(tx.date).toLocaleDateString()}{tx.notes ? ` · ${tx.notes}` : ''}
-                </p>
-              </div>
-
-              <span
-                className="text-sm font-bold shrink-0"
-                style={{ color: tx.type === 'Income' ? 'var(--success)' : 'var(--danger)' }}
-              >
-                {tx.type === 'Income' ? '+' : '−'}EGP {tx.amount.toFixed(2)}
-              </span>
-
-              <div className="flex gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => startEdit(tx)}
-                  title={t('transactions.edit')}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                  style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}
-                >
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeleteTarget(tx.id)}
-                  title={t('transactions.delete')}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                  style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}
-                >
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-subtle)' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" style={{ background: 'var(--bg-surface)' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-subtle)' }}>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)', width: '40px' }}></th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{t('transactions.category')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('transactions.date')}</th>
+                  <th className="px-4 py-3 text-start text-xs font-semibold uppercase tracking-wide hidden md:table-cell" style={{ color: 'var(--text-muted)' }}>{t('transactions.notes')}</th>
+                  <th className="px-4 py-3 text-end text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{t('transactions.amount')}</th>
+                  <th className="px-4 py-3 text-end text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)', width: '100px' }}>{t('common.actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((tx, i) => (
+                  <tr key={tx.id} className="transition-colors hover:bg-[var(--bg-subtle)]" style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}>
+                    <td className="px-4 py-3">
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                        style={{
+                          background: tx.type === 'Income' ? 'var(--success-bg)' : 'var(--danger-bg)',
+                          color: tx.type === 'Income' ? 'var(--success)' : 'var(--danger)',
+                        }}
+                      >
+                        {tx.type === 'Income' ? '+' : '−'}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                        {tx.category ? t(CATEGORY_I18N_KEYS[tx.category] ?? tx.category) : (tx.type === 'Income' ? t('transactions.income') : t('transactions.expense'))}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {new Date(tx.date).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell text-xs truncate max-w-xs" style={{ color: 'var(--text-muted)' }}>
+                      {tx.notes || '—'}
+                    </td>
+                    <td className="px-4 py-3 text-end">
+                      <span className="font-bold" style={{ color: tx.type === 'Income' ? 'var(--success)' : 'var(--danger)' }}>
+                        {tx.type === 'Income' ? '+' : '−'}EGP {tx.amount.toFixed(2)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1 justify-end">
+                        <button type="button" onClick={() => startEdit(tx)} title={t('transactions.edit')}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
+                          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </button>
+                        <button type="button" onClick={() => setDeleteTarget(tx.id)} title={t('transactions.delete')}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>
+                          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

@@ -166,15 +166,15 @@ const SidebarInner = memo(function SidebarInner({ isCollapsed, onNavClick }: Sid
             >{isRTL ? 'EN' : 'ع'}</button>
             <DarkModeToggle />
             <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
               style={{ background: 'var(--accent-light)', color: 'var(--accent)', cursor: 'default' }}
-              title={user?.fullName}
+              title={`${user?.fullName}\n${user?.email}`}
             >{user?.fullName?.charAt(0)?.toUpperCase() ?? 'U'}</div>
             <button
               onClick={handleLogout}
               title={t('nav.logout')}
-              className="w-8 h-8 flex items-center justify-center rounded-lg"
-              style={{ color: 'var(--text-muted)', background: 'var(--bg-subtle)' }}
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
+              style={{ color: 'var(--danger)', background: 'var(--danger-bg)' }}
             >
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -182,7 +182,7 @@ const SidebarInner = memo(function SidebarInner({ isCollapsed, onNavClick }: Sid
             </button>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
               <button
                 onClick={toggleLang}
@@ -191,25 +191,32 @@ const SidebarInner = memo(function SidebarInner({ isCollapsed, onNavClick }: Sid
               >{isRTL ? 'EN' : 'ع'}</button>
               <DarkModeToggle />
             </div>
-            <div className="flex items-center gap-3 px-1 py-2 rounded-lg" style={{ background: 'var(--bg-subtle)' }}>
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}
-              >{user?.fullName?.charAt(0)?.toUpperCase() ?? 'U'}</div>
-              <span className="text-xs font-medium truncate flex-1" style={{ color: 'var(--text-secondary)' }}>
-                {user?.fullName}
-              </span>
-              <button
-                onClick={handleLogout}
-                title={t('nav.logout')}
-                className="shrink-0"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                </svg>
-              </button>
+            <div className="px-1 py-2.5 rounded-lg" style={{ background: 'var(--bg-subtle)' }}>
+              <div className="flex items-center gap-3 mb-1.5">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                  style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}
+                >{user?.fullName?.charAt(0)?.toUpperCase() ?? 'U'}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
+                    {user?.fullName}
+                  </p>
+                  <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>
+                    {user?.email}
+                  </p>
+                </div>
+              </div>
             </div>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
+              style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              {t('nav.logout')}
+            </button>
           </div>
         )}
       </div>

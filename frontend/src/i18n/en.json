@@ -264,7 +264,9 @@
     "selectDate": "Select date",
     "dateFrom": "From",
     "dateTo": "To",
-    "clearFilters": "Clear"
+    "clearFilters": "Clear",
+    "actions": "Actions",
+    "status": "Status"
   },
   "ramadan": {
     "greeting": "Ramadan Kareem",
