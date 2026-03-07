@@ -60,6 +60,7 @@
     "noResults": "No matching tasks",
     "noResultsHint": "Try adjusting your search or filter.",
     "complete": "Complete",
+    "markPending": "Mark as pending",
     "delete": "Delete",
     "edit": "Edit",
     "editTask": "Edit Task",

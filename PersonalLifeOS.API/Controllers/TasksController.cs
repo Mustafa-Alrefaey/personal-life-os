@@ -243,6 +243,32 @@ public class TasksController : BaseApiController
     }
 
     /// <summary>
+    /// Mark a task as incomplete (back to pending)
+    /// </summary>
+    [HttpPost("{id}/uncomplete")]
+    public async Task<ActionResult<ApiResponse<object>>> UncompleteTask(int id)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var existingTask = await _taskService.GetTaskByIdAsync(id);
+
+            if (existingTask == null)
+                return NotFound(ApiResponse<object>.ErrorResponse("Task not found", new List<string> { $"Task with ID {id} does not exist" }));
+
+            if (existingTask.UserId != userId)
+                return Forbid();
+
+            await _taskService.UncompleteTaskAsync(id, userId);
+            return Ok(ApiResponse<object>.SuccessResponse(null, "Task marked as pending"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ApiResponse<object>.ErrorResponse("An error occurred", new List<string> { ex.Message }));
+        }
+    }
+
+    /// <summary>
     /// Mark a task as complete
     /// </summary>
     [HttpPost("{id}/complete")]

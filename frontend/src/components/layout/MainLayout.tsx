@@ -5,6 +5,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSidebarStore } from '../../stores/sidebarStore';
 import { useRamadanStore } from '../../stores/ramadanStore';
 import { DarkModeToggle } from '../ui/DarkModeToggle';
+import { RamadanBanner } from '../ui/RamadanBanner';
 
 interface MainLayoutProps { children: React.ReactNode }
 
@@ -312,6 +313,7 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
         {/* Page content — key re-triggers animation on route change */}
         <main key={location.pathname} className="flex-1 page-enter" style={{ padding: '1.5rem 1.25rem' }}>
           <div className="max-w-5xl mx-auto page-frame">
+            <RamadanBanner />
             {children}
           </div>
         </main>

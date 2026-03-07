@@ -66,6 +66,12 @@ export default function TasksPage() {
     onError: () => setCompletingId(null),
   });
 
+  const uncompleteMutation = useMutation({
+    mutationFn: (id: number) => taskService.uncompleteTask(id),
+    onSuccess: () => { invalidate(); setCompletingId(null); },
+    onError: () => setCompletingId(null),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id: number) => taskService.deleteTask(id),
     onSuccess: () => { invalidate(); setDeleteTarget(null); showToast(t('tasks.deleted'), 'success'); },
@@ -261,17 +267,19 @@ export default function TasksPage() {
           {filtered.map((task) => (
             <div key={task.id} className="interactive-card rounded-xl p-4 sm:p-5 flex gap-3 items-start"
               style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
-              {/* Complete checkbox */}
+              {/* Complete / uncomplete toggle */}
               <button
                 type="button"
                 onClick={() => {
-                  if (task.statusCode !== 'COMPLETED') {
-                    setCompletingId(task.id);
+                  setCompletingId(task.id);
+                  if (task.statusCode === 'COMPLETED') {
+                    uncompleteMutation.mutate(task.id);
+                  } else {
                     completeMutation.mutate(task.id);
                   }
                 }}
-                disabled={task.statusCode === 'COMPLETED' || completingId === task.id}
-                title={task.statusCode === 'COMPLETED' ? t('tasks.filterCompleted') : t('tasks.complete')}
+                disabled={completingId === task.id}
+                title={task.statusCode === 'COMPLETED' ? t('tasks.markPending') : t('tasks.complete')}
                 className="mt-0.5 w-6 h-6 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
                 style={{
                   borderColor: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'var(--text-muted)',

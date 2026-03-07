@@ -40,4 +40,10 @@ export const taskService = {
     const response = await api.post<ApiResponse<object>>(`/tasks/${id}/complete`);
     return response.data;
   },
+
+  // Mark task as incomplete (back to pending)
+  async uncompleteTask(id: number): Promise<ApiResponse<object>> {
+    const response = await api.post<ApiResponse<object>>(`/tasks/${id}/uncomplete`);
+    return response.data;
+  },
 };

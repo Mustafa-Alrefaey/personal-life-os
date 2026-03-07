@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { authService } from '../services/auth.service';
 import { useAuthStore } from '../stores/authStore';
 import { Spinner } from '../components/ui/Spinner';
+import { RamadanBanner } from '../components/ui/RamadanBanner';
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
@@ -39,6 +40,7 @@ export default function LoginPage() {
       style={{ background: 'var(--bg-base)' }}
     >
       <div className="w-full max-w-sm">
+        <RamadanBanner />
         {/* Brand */}
         <div className="text-center mb-8">
           <div

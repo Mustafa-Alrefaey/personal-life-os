@@ -58,6 +58,17 @@ public class TaskService
         }
     }
 
+    public async Task UncompleteTaskAsync(int id, string userId)
+    {
+        var task = await _repository.GetByIdAsync(id);
+        if (task != null && task.UserId == userId)
+        {
+            task.StatusCode = GeneralStatuses.PENDING;
+            task.UpdatedBy = userId;
+            await _repository.UpdateAsync(task);
+        }
+    }
+
     public async Task CompleteTaskAsync(int id, string userId)
     {
         var task = await _repository.GetByIdAsync(id);

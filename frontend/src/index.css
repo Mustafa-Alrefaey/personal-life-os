@@ -16,9 +16,9 @@
   --bg-sidebar:     #f0ece4;   /* Sidebar panel                      */
 
   /* Text */
-  --text-primary:   #1a1715;
-  --text-secondary: #4a4540;
-  --text-muted:     #9b948c;
+  --text-primary:   #111009;
+  --text-secondary: #2e2b28;
+  --text-muted:     #706a63;
 
   /* Borders */
   --border-default: #d5cfc6;
@@ -68,9 +68,9 @@
   --bg-sidebar:     #1e1c18;
 
   /* Text */
-  --text-primary:   #eee8df;
-  --text-secondary: #b0a99e;
-  --text-muted:     #6e6760;
+  --text-primary:   #f0ebe2;
+  --text-secondary: #cdc5bb;
+  --text-muted:     #9e9790;
 
   /* Borders */
   --border-default: #3c3830;
