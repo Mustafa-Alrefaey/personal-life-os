@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { formatDate } from '../utils/formatDate';
 import { transactionService } from '../services/transaction.service';
 import type { Transaction, CreateTransactionRequest, UpdateTransactionRequest, TransactionType } from '../types/transaction';
 import { MainLayout } from '../components/layout/MainLayout';
@@ -292,7 +293,13 @@ export default function TransactionsPage() {
               </thead>
               <tbody>
                 {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((tx, i) => (
-                  <tr key={tx.id} className="transition-colors hover:bg-[var(--bg-subtle)]" style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}>
+                  <tr
+                    key={tx.id}
+                    className="transition-colors"
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-row-hover)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = '')}
+                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
+                  >
                     <td className="px-4 py-3">
                       <div
                         className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
@@ -310,7 +317,7 @@ export default function TransactionsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(tx.date).toLocaleDateString()}
+                      {formatDate(tx.date)}
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell text-xs truncate max-w-xs" style={{ color: 'var(--text-muted)' }}>
                       {tx.notes || '—'}

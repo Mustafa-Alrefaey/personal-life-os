@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { formatDate } from '../utils/formatDate';
 import { receiptService } from '../services/receipt.service';
 import { API_BASE_URL } from '../services/api';
 import type { Receipt, CreateReceiptRequest } from '../types/receipt';
@@ -33,6 +34,8 @@ export default function ReceiptsPage() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [imageUpdateProgress, setImageUpdateProgress] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageChangeRef = useRef<HTMLInputElement>(null);
@@ -49,6 +52,7 @@ export default function ReceiptsPage() {
     setEditingReceipt(null);
     setForm(emptyForm);
     setImageFile(null);
+    setUploadProgress(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -60,9 +64,10 @@ export default function ReceiptsPage() {
   };
 
   const createMutation = useMutation({
-    mutationFn: () => receiptService.createReceipt(form, imageFile!),
+    mutationFn: () => receiptService.createReceipt(form, imageFile!, (p) => setUploadProgress(p)),
+    onMutate: () => setUploadProgress(0),
     onSuccess: () => { invalidate(); closeForm(); showToast(t('receipts.uploaded'), 'success'); },
-    onError: () => showToast(t('common.error'), 'error'),
+    onError: () => { setUploadProgress(null); showToast(t('common.error'), 'error'); },
   });
 
   const updateMutation = useMutation({
@@ -72,9 +77,11 @@ export default function ReceiptsPage() {
   });
 
   const updateImageMutation = useMutation({
-    mutationFn: ({ id, file }: { id: number; file: File }) => receiptService.updateReceiptImage(id, file),
-    onSuccess: () => { invalidate(); showToast(t('receipts.imageUpdated'), 'success'); },
-    onError: () => showToast(t('common.error'), 'error'),
+    mutationFn: ({ id, file }: { id: number; file: File }) =>
+      receiptService.updateReceiptImage(id, file, (p) => setImageUpdateProgress(p)),
+    onMutate: () => setImageUpdateProgress(0),
+    onSuccess: () => { setImageUpdateProgress(null); invalidate(); showToast(t('receipts.imageUpdated'), 'success'); },
+    onError: () => { setImageUpdateProgress(null); showToast(t('common.error'), 'error'); },
   });
 
   const deleteMutation = useMutation({
@@ -186,6 +193,20 @@ export default function ReceiptsPage() {
               />
             </div>
           )}
+          {uploadProgress !== null && (
+            <div>
+              <div className="flex justify-between text-xs mb-1.5">
+                <span style={{ color: 'var(--text-secondary)' }}>{t('receipts.uploading')}</span>
+                <span className="font-semibold" style={{ color: 'var(--accent)' }}>{uploadProgress}%</span>
+              </div>
+              <div className="w-full rounded-full h-2" style={{ background: 'var(--bg-subtle)' }}>
+                <div
+                  className="h-2 rounded-full transition-all duration-200"
+                  style={{ width: `${uploadProgress}%`, background: 'var(--accent)' }}
+                />
+              </div>
+            </div>
+          )}
           <div className="flex justify-end gap-2 pt-1">
             <button type="button" onClick={closeForm}
               className="px-4 py-2 rounded-lg text-sm font-semibold"
@@ -256,7 +277,13 @@ export default function ReceiptsPage() {
               </thead>
               <tbody>
                 {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((receipt, i) => (
-                  <tr key={receipt.id} className="transition-colors hover:bg-[var(--bg-subtle)]" style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}>
+                  <tr
+                    key={receipt.id}
+                    className="transition-colors"
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-row-hover)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = '')}
+                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
+                  >
                     <td className="px-4 py-2">
                       {receipt.imagePath ? (
                         <img
@@ -285,7 +312,7 @@ export default function ReceiptsPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(receipt.date).toLocaleDateString()}
+                      {formatDate(receipt.date)}
                     </td>
                     <td className="px-4 py-3 text-end">
                       <span className="font-bold" style={{ color: 'var(--text-primary)' }}>EGP {receipt.amount.toFixed(2)}</span>
@@ -344,6 +371,21 @@ export default function ReceiptsPage() {
         onConfirm={() => { if (deleteTarget !== null) deleteMutation.mutate(deleteTarget); }}
         onCancel={() => setDeleteTarget(null)}
       />
+
+      {/* Image update progress — floating bar at bottom of screen */}
+      {imageUpdateProgress !== null && (
+        <div className="fixed bottom-6 start-1/2 -translate-x-1/2 z-50 rounded-xl px-5 py-3 shadow-xl"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', minWidth: '260px' }}>
+          <div className="flex justify-between text-xs mb-1.5">
+            <span style={{ color: 'var(--text-secondary)' }}>{t('receipts.uploading')}</span>
+            <span className="font-semibold" style={{ color: 'var(--accent)' }}>{imageUpdateProgress}%</span>
+          </div>
+          <div className="w-full rounded-full h-1.5" style={{ background: 'var(--bg-subtle)' }}>
+            <div className="h-1.5 rounded-full transition-all duration-200"
+              style={{ width: `${imageUpdateProgress}%`, background: 'var(--accent)' }} />
+          </div>
+        </div>
+      )}
 
       {/* Image Preview Lightbox */}
       {previewImage && (

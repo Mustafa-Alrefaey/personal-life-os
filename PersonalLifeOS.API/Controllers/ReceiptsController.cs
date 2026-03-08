@@ -43,6 +43,8 @@ public class ReceiptsController : BaseApiController
 
     [HttpPost]
     [Consumes("multipart/form-data")]
+    [RequestSizeLimit(50 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 50 * 1024 * 1024)]
     public async Task<ActionResult<ApiResponse<ReceiptDto>>> CreateReceipt([FromForm] CreateReceiptDto dto, IFormFile imageFile)
     {
         if (!ModelState.IsValid)
@@ -89,6 +91,8 @@ public class ReceiptsController : BaseApiController
 
     [HttpPut("{id}/image")]
     [Consumes("multipart/form-data")]
+    [RequestSizeLimit(50 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 50 * 1024 * 1024)]
     public async Task<ActionResult<ApiResponse<object>>> UpdateReceiptImage(int id, IFormFile imageFile)
     {
         if (imageFile == null || imageFile.Length == 0)

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { formatDateLong } from '../utils/formatDate';
 import { journalService } from '../services/journal.service';
 import type { JournalEntry } from '../types/journal';
 import { MainLayout } from '../components/layout/MainLayout';
@@ -179,7 +180,7 @@ export default function JournalPage() {
             <div key={entry.id} className="interactive-card rounded-xl p-5" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
               <div className="flex justify-between items-start gap-4 mb-3">
                 <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>
-                  {new Date(entry.date).toLocaleDateString(i18n.language, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  {formatDateLong(entry.date, i18n.language)}
                 </p>
                 <div className="flex gap-1 shrink-0">
                   <button

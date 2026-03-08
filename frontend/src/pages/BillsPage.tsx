@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { formatDate } from '../utils/formatDate';
 import { billService } from '../services/bill.service';
 import type { Bill, CreateBillRequest, UpdateBillRequest } from '../types/bill';
 import { MainLayout } from '../components/layout/MainLayout';
@@ -241,7 +242,13 @@ export default function BillsPage() {
                   const statusColor = bill.statusCode === 'Paid' ? 'var(--success)' : isOverdue ? 'var(--danger)' : 'var(--warning)';
                   const statusBg   = bill.statusCode === 'Paid' ? 'var(--success-bg)' : isOverdue ? 'var(--danger-bg)' : 'var(--warning-bg)';
                   return (
-                    <tr key={bill.id} className="transition-colors hover:bg-[var(--bg-subtle)]" style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}>
+                    <tr
+                      key={bill.id}
+                      className="transition-colors"
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-row-hover)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = '')}
+                      style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
+                    >
                       <td className="px-4 py-3">
                         <button
                           type="button"
@@ -279,7 +286,7 @@ export default function BillsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>
-                        {new Date(bill.dueDate).toLocaleDateString()}
+                        {formatDate(bill.dueDate)}
                       </td>
                       <td className="px-4 py-3 text-end">
                         <span className="font-bold" style={{ color: 'var(--text-primary)' }}>EGP {bill.amount.toFixed(2)}</span>

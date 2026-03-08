@@ -74,7 +74,7 @@ export function AppDatePicker({ value, onChange, placeholder, required, minDate 
             onChange(`${y}-${m}-${d}`);
           }
         }}
-        dateFormat="MMM d, yyyy"
+        dateFormat="dd/MM/yyyy"
         placeholderText={placeholder ?? t('common.selectDate')}
         customInput={<DateInput />}
         minDate={minDate}

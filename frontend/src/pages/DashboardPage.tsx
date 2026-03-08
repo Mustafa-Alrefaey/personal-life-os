@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { dashboardService } from '../services/dashboard.service';
 import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
+import { formatDate, formatDateLong } from '../utils/formatDate';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader } from '../components/ui/Spinner';
 
@@ -21,7 +22,7 @@ export default function DashboardPage() {
   const { t, i18n } = useTranslation();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? t('dashboard.goodMorning') : hour < 18 ? t('dashboard.goodAfternoon') : t('dashboard.goodEvening');
-  const todayLabel = new Date().toLocaleDateString(i18n.language, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const todayLabel = formatDateLong(new Date(), i18n.language);
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => dashboardService.getDashboard(),
@@ -223,7 +224,7 @@ export default function DashboardPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{bill.name}</p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                      {t('common.due')}: {new Date(bill.dueDate).toLocaleDateString()}
+                      {t('common.due')}: {formatDate(bill.dueDate)}
                     </p>
                   </div>
                   <span className="text-sm font-bold shrink-0" style={{ color: 'var(--danger)' }}>

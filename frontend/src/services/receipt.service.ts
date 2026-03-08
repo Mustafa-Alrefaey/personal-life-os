@@ -8,7 +8,11 @@ export const receiptService = {
     return response.data;
   },
 
-  async createReceipt(data: CreateReceiptRequest, imageFile: File): Promise<ApiResponse<Receipt>> {
+  async createReceipt(
+    data: CreateReceiptRequest,
+    imageFile: File,
+    onUploadProgress?: (percent: number) => void,
+  ): Promise<ApiResponse<Receipt>> {
     const formData = new FormData();
     formData.append('title', data.title);
     formData.append('amount', data.amount.toString());
@@ -16,7 +20,13 @@ export const receiptService = {
     if (data.category) formData.append('category', data.category);
     formData.append('imageFile', imageFile);
 
-    const response = await api.post<ApiResponse<Receipt>>('/receipts', formData);
+    const response = await api.post<ApiResponse<Receipt>>('/receipts', formData, {
+      onUploadProgress: (e) => {
+        if (onUploadProgress && e.total) {
+          onUploadProgress(Math.round((e.loaded * 100) / e.total));
+        }
+      },
+    });
     return response.data;
   },
 
@@ -30,10 +40,20 @@ export const receiptService = {
     return response.data;
   },
 
-  async updateReceiptImage(id: number, imageFile: File): Promise<ApiResponse<object>> {
+  async updateReceiptImage(
+    id: number,
+    imageFile: File,
+    onUploadProgress?: (percent: number) => void,
+  ): Promise<ApiResponse<object>> {
     const formData = new FormData();
     formData.append('imageFile', imageFile);
-    const response = await api.put<ApiResponse<object>>(`/receipts/${id}/image`, formData);
+    const response = await api.put<ApiResponse<object>>(`/receipts/${id}/image`, formData, {
+      onUploadProgress: (e) => {
+        if (onUploadProgress && e.total) {
+          onUploadProgress(Math.round((e.loaded * 100) / e.total));
+        }
+      },
+    });
     return response.data;
   },
 };

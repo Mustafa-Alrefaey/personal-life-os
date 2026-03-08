@@ -14,6 +14,7 @@
   --bg-muted:       #e2ddd5;   /* Stronger muted bg                  */
   --bg-input:       #ffffff;   /* Input / textarea background        */
   --bg-sidebar:     #f0ece4;   /* Sidebar panel                      */
+  --bg-row-hover:   #f0ece4;   /* Table row hover                    */
 
   /* Text */
   --text-primary:   #111009;
@@ -66,6 +67,7 @@
   --bg-muted:       #37342e;
   --bg-input:       #272420;
   --bg-sidebar:     #1e1c18;
+  --bg-row-hover:   #312e27;   /* Table row hover — between surface and subtle */
 
   /* Text */
   --text-primary:   #f0ebe2;
@@ -129,6 +131,7 @@
   --bg-muted:       #1c1445;
   --bg-input:       #100c26;
   --bg-sidebar:     #090620;
+  --bg-row-hover:   #1a1440;   /* Table row hover                    */
   --border-default: rgba(155, 120, 230, 0.22);
   --border-subtle:  rgba(155, 120, 230, 0.12);
   --border-focus:   #d4a820;

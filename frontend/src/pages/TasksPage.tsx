@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { formatDate } from '../utils/formatDate';
 import { taskService } from '../services/task.service';
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '../types/task';
 import { MainLayout } from '../components/layout/MainLayout';
@@ -276,7 +277,13 @@ export default function TasksPage() {
               </thead>
               <tbody>
                 {filtered.map((task, i) => (
-                  <tr key={task.id} className="transition-colors hover:bg-[var(--bg-subtle)]" style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}>
+                  <tr
+                    key={task.id}
+                    className="transition-colors"
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-row-hover)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = '')}
+                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
+                  >
                     <td className="px-4 py-3">
                       <button
                         type="button"
@@ -324,7 +331,7 @@ export default function TasksPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>
-                      {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '—'}
+                      {formatDate(task.dueDate)}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1 justify-end">
