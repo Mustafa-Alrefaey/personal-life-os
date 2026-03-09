@@ -10,6 +10,7 @@ import { AppDatePicker } from '../components/ui/AppDatePicker';
 import { Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { Pagination } from '../components/ui/Pagination';
 
 const emptyForm: CreateBillRequest = { name: '', amount: 0, dueDate: '', reminderDaysBefore: 3 };
 
@@ -29,6 +30,7 @@ export default function BillsPage() {
   const [payingId, setPayingId] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'PENDING' | 'Paid'>('All');
+  const [page, setPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
@@ -90,6 +92,7 @@ export default function BillsPage() {
     }
   };
 
+  const PAGE_SIZE = 6;
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const bills = data?.data ?? [];
   const pendingCount = bills.filter((b) => b.statusCode === 'PENDING').length;
@@ -104,6 +107,9 @@ export default function BillsPage() {
       if (dateTo && d > dateTo) return false;
       return true;
     });
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const currentPage = Math.min(page, Math.max(1, totalPages));
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <MainLayout>
@@ -236,7 +242,7 @@ export default function BillsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((bill, i) => {
+                {paged.map((bill, i) => {
                   const isOverdue = bill.statusCode === 'PENDING' && new Date(bill.dueDate) < new Date();
                   const statusLabel = bill.statusCode === 'Paid' ? t('bills.status_paid') : isOverdue ? t('bills.status_overdue') : t('bills.status_pending');
                   const statusColor = bill.statusCode === 'Paid' ? 'var(--success)' : isOverdue ? 'var(--danger)' : 'var(--warning)';
@@ -247,7 +253,7 @@ export default function BillsPage() {
                       className="transition-colors"
                       onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-row-hover)')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = '')}
-                      style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
+                      style={{ borderBottom: i < paged.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
                     >
                       <td className="px-4 py-3">
                         <button
@@ -261,9 +267,9 @@ export default function BillsPage() {
                           title={bill.statusCode === 'Paid' ? t('bills.markUnpaid') : t('bills.pay')}
                           className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
                           style={{
-                            borderColor: bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--text-muted)',
+                            borderColor: bill.statusCode === 'Paid' ? 'var(--success)' : 'var(--border-default)',
                             background: bill.statusCode === 'Paid' ? 'var(--success)' : 'transparent',
-                            color: bill.statusCode === 'Paid' ? '#fff' : 'var(--text-muted)',
+                            color: bill.statusCode === 'Paid' ? '#fff' : 'var(--border-default)',
                           }}
                         >
                           {payingId === bill.id
@@ -310,6 +316,7 @@ export default function BillsPage() {
                 })}
               </tbody>
             </table>
+            <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
           </div>
         </div>
       )}

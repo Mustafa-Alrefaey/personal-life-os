@@ -12,6 +12,7 @@ import { Modal } from '../components/ui/Modal';
 import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { Pagination } from '../components/ui/Pagination';
 
 const today = new Date().toISOString().split('T')[0];
 const emptyForm: CreateTransactionRequest = { amount: 0, type: 'Expense', category: '', date: today, notes: '' };
@@ -33,6 +34,7 @@ export default function TransactionsPage() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
     queryKey: ['transactions'],
@@ -83,6 +85,7 @@ export default function TransactionsPage() {
     }
   };
 
+  const PAGE_SIZE = 6;
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const all = data?.data ?? [];
   const filtered = all
@@ -95,6 +98,10 @@ export default function TransactionsPage() {
       if (dateTo && d > dateTo) return false;
       return true;
     });
+  const sorted = [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
+  const currentPage = Math.min(page, Math.max(1, totalPages));
+  const paged = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const totalIncome  = all.filter((tx) => tx.type === 'Income').reduce((s, tx) => s + tx.amount, 0);
   const totalExpense = all.filter((tx) => tx.type === 'Expense').reduce((s, tx) => s + tx.amount, 0);
   const balance = totalIncome - totalExpense;
@@ -292,13 +299,13 @@ export default function TransactionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((tx, i) => (
+                {paged.map((tx, i) => (
                   <tr
                     key={tx.id}
                     className="transition-colors"
                     onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-row-hover)')}
                     onMouseLeave={(e) => (e.currentTarget.style.background = '')}
-                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
+                    style={{ borderBottom: i < paged.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
                   >
                     <td className="px-4 py-3">
                       <div
@@ -345,6 +352,7 @@ export default function TransactionsPage() {
                 ))}
               </tbody>
             </table>
+            <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
           </div>
         </div>
       )}

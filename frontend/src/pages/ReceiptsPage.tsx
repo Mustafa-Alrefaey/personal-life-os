@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../utils/formatDate';
 import { receiptService } from '../services/receipt.service';
-import { API_BASE_URL } from '../services/api';
 import type { Receipt, CreateReceiptRequest } from '../types/receipt';
 import { MainLayout } from '../components/layout/MainLayout';
 import { PageLoader, Spinner } from '../components/ui/Spinner';
@@ -13,6 +12,7 @@ import { Modal } from '../components/ui/Modal';
 import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { Pagination } from '../components/ui/Pagination';
 
 const today = new Date().toISOString().split('T')[0];
 const emptyForm: CreateReceiptRequest = { title: '', amount: 0, date: today, category: '' };
@@ -34,6 +34,7 @@ export default function ReceiptsPage() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [page, setPage] = useState(1);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [imageUpdateProgress, setImageUpdateProgress] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
@@ -108,6 +109,7 @@ export default function ReceiptsPage() {
     updateImageMutation.mutate({ id: receiptId, file });
   };
 
+  const PAGE_SIZE = 6;
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const receipts = data?.data ?? [];
   const totalAmount = receipts.reduce((s, r) => s + r.amount, 0);
@@ -120,6 +122,10 @@ export default function ReceiptsPage() {
       if (dateTo && d > dateTo) return false;
       return true;
     });
+  const sorted = [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const totalPages = Math.ceil(sorted.length / PAGE_SIZE);
+  const currentPage = Math.min(page, Math.max(1, totalPages));
+  const paged = sorted.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <MainLayout>
@@ -276,13 +282,13 @@ export default function ReceiptsPage() {
                 </tr>
               </thead>
               <tbody>
-                {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((receipt, i) => (
+                {paged.map((receipt, i) => (
                   <tr
                     key={receipt.id}
                     className="transition-colors"
                     onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-row-hover)')}
                     onMouseLeave={(e) => (e.currentTarget.style.background = '')}
-                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
+                    style={{ borderBottom: i < paged.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
                   >
                     <td className="px-4 py-2">
                       {receipt.imagePath ? (
@@ -347,6 +353,7 @@ export default function ReceiptsPage() {
                 ))}
               </tbody>
             </table>
+            <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} totalItems={sorted.length} pageSize={PAGE_SIZE} />
           </div>
           <input
             ref={imageChangeRef}

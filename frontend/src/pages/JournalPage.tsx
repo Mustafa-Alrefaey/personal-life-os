@@ -10,6 +10,7 @@ import { AppDatePicker } from '../components/ui/AppDatePicker';
 import { Modal } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { Pagination } from '../components/ui/Pagination';
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -24,6 +25,7 @@ export default function JournalPage() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({ queryKey: ['journal'], queryFn: () => journalService.getAllJournals() });
 
@@ -58,6 +60,7 @@ export default function JournalPage() {
 
   const handleCancel = () => { setShowForm(false); setEditEntry(null); setForm({ date: today, notes: '' }); };
 
+  const PAGE_SIZE = 6;
   const entries = data?.data ?? [];
 
   const filtered = entries
@@ -69,6 +72,10 @@ export default function JournalPage() {
       if (dateTo && d > dateTo) return false;
       return true;
     });
+  const sortedEntries = [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const totalPages = Math.ceil(sortedEntries.length / PAGE_SIZE);
+  const currentPage = Math.min(page, Math.max(1, totalPages));
+  const paged = sortedEntries.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <MainLayout>
@@ -175,9 +182,10 @@ export default function JournalPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {[...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((entry) => (
-            <div key={entry.id} className="interactive-card rounded-xl p-5" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
+        <div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {paged.map((entry) => (
+            <div key={entry.id} className="interactive-card rounded-xl p-5 flex flex-col" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}>
               <div className="flex justify-between items-start gap-4 mb-3">
                 <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>
                   {formatDateLong(entry.date, i18n.language)}
@@ -201,11 +209,13 @@ export default function JournalPage() {
                   </button>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-sm leading-relaxed line-clamp-5 mt-1 overflow-hidden" style={{ color: 'var(--text-secondary)' }}>
                 {entry.notes}
               </p>
             </div>
           ))}
+        </div>
+        <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} totalItems={sortedEntries.length} pageSize={PAGE_SIZE} />
         </div>
       )}
       <ConfirmDialog

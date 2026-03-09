@@ -12,6 +12,7 @@ import { Modal } from '../components/ui/Modal';
 import { CATEGORY_I18N_KEYS } from '../utils/categoryLabel';
 import { useToast } from '../components/ui/Toast';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { Pagination } from '../components/ui/Pagination';
 
 const emptyTask: CreateTaskRequest = { title: '', description: '', dueDate: '', category: '', priority: '' };
 
@@ -34,6 +35,7 @@ export default function TasksPage() {
   const [dateTo, setDateTo] = useState('');
   const [completingId, setCompletingId] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({ queryKey: ['tasks'], queryFn: () => taskService.getAllTasks() });
 
@@ -93,6 +95,7 @@ export default function TasksPage() {
     }
   };
 
+  const PAGE_SIZE = 6;
   const isSaving = createMutation.isPending || updateMutation.isPending;
   const tasks = data?.data ?? [];
   const filtered = tasks
@@ -107,6 +110,9 @@ export default function TasksPage() {
       if (dateTo && d > dateTo) return false;
       return true;
     });
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const currentPage = Math.min(page, Math.max(1, totalPages));
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <MainLayout>
@@ -276,13 +282,13 @@ export default function TasksPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((task, i) => (
+                {paged.map((task, i) => (
                   <tr
                     key={task.id}
                     className="transition-colors"
                     onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-row-hover)')}
                     onMouseLeave={(e) => (e.currentTarget.style.background = '')}
-                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
+                    style={{ borderBottom: i < paged.length - 1 ? '1px solid var(--border-subtle)' : undefined }}
                   >
                     <td className="px-4 py-3">
                       <button
@@ -296,9 +302,9 @@ export default function TasksPage() {
                         title={task.statusCode === 'COMPLETED' ? t('tasks.markPending') : t('tasks.complete')}
                         className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center border-2 transition-all"
                         style={{
-                          borderColor: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'var(--text-muted)',
+                          borderColor: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'var(--border-default)',
                           background: task.statusCode === 'COMPLETED' ? 'var(--success)' : 'transparent',
-                          color: task.statusCode === 'COMPLETED' ? '#fff' : 'var(--text-muted)',
+                          color: task.statusCode === 'COMPLETED' ? '#fff' : 'var(--border-default)',
                         }}
                       >
                         {completingId === task.id
@@ -351,6 +357,7 @@ export default function TasksPage() {
                 ))}
               </tbody>
             </table>
+            <Pagination page={currentPage} totalPages={totalPages} onPageChange={setPage} totalItems={filtered.length} pageSize={PAGE_SIZE} />
           </div>
         </div>
       )}
