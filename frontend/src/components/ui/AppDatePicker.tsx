@@ -82,10 +82,6 @@ export function AppDatePicker({ value, onChange, placeholder, required, minDate 
         autoComplete="off"
         wrapperClassName="w-full"
         popperPlacement="bottom-start"
-        popperModifiers={[
-          { name: 'offset', options: { offset: [0, 4] } } as any,
-          { name: 'preventOverflow', options: { padding: 8 } } as any,
-        ]}
       />
       {/* Clear button — only shown when a date is selected */}
       {value && (

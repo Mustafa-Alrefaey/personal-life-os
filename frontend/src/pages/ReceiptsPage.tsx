@@ -287,10 +287,10 @@ export default function ReceiptsPage() {
                     <td className="px-4 py-2">
                       {receipt.imagePath ? (
                         <img
-                          src={`${API_BASE_URL}/uploads/receipts/${receipt.imagePath}`}
+                          src={`https://drive.google.com/thumbnail?id=${receipt.imagePath}&sz=w200`}
                           alt={receipt.title}
                           className="w-10 h-10 rounded-lg object-cover cursor-pointer transition-opacity hover:opacity-80"
-                          onClick={() => setPreviewImage({ src: `${API_BASE_URL}/uploads/receipts/${receipt.imagePath}`, title: receipt.title })}
+                          onClick={() => setPreviewImage({ src: `https://drive.google.com/thumbnail?id=${receipt.imagePath}&sz=w1000`, title: receipt.title })}
                           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                         />
                       ) : (

@@ -10,12 +10,12 @@ namespace PersonalLifeOS.Infrastructure.Services;
 public class ReceiptService
 {
     private readonly ReceiptRepository _repository;
-    private readonly FileStorageService _fileStorage;
+    private readonly GoogleDriveStorageService _driveStorage;
 
-    public ReceiptService(ReceiptRepository repository, FileStorageService fileStorage)
+    public ReceiptService(ReceiptRepository repository, GoogleDriveStorageService driveStorage)
     {
         _repository = repository;
-        _fileStorage = fileStorage;
+        _driveStorage = driveStorage;
     }
 
     public async Task<List<ReceiptDto>> GetAllReceiptsAsync(string userId)
@@ -35,7 +35,10 @@ public class ReceiptService
 
     public async Task<ReceiptDto> CreateReceiptAsync(CreateReceiptDto dto, IFormFile imageFile, string userId)
     {
-        var imagePath = await _fileStorage.SaveFileAsync(imageFile.OpenReadStream(), imageFile.FileName);
+        var fileId = await _driveStorage.SaveFileAsync(
+            imageFile.OpenReadStream(),
+            imageFile.FileName,
+            imageFile.ContentType);
 
         var receipt = new Receipt
         {
@@ -43,7 +46,7 @@ public class ReceiptService
             Amount = dto.Amount,
             Date = dto.Date,
             Category = dto.Category,
-            ImagePath = imagePath,
+            ImagePath = fileId,
             UserId = userId,
             CreatedBy = userId,
             StatusCode = GeneralStatuses.ACTIVE
@@ -75,9 +78,14 @@ public class ReceiptService
         if (receipt.UserId != userId)
             throw new UnauthorizedAccessException();
 
-        _fileStorage.DeleteFile(receipt.ImagePath);
-        var newPath = await _fileStorage.SaveFileAsync(imageFile.OpenReadStream(), imageFile.FileName);
-        receipt.ImagePath = newPath;
+        await _driveStorage.DeleteFileAsync(receipt.ImagePath);
+
+        var newFileId = await _driveStorage.SaveFileAsync(
+            imageFile.OpenReadStream(),
+            imageFile.FileName,
+            imageFile.ContentType);
+
+        receipt.ImagePath = newFileId;
         receipt.UpdatedBy = userId;
         await _repository.UpdateAsync(receipt);
     }
@@ -89,7 +97,6 @@ public class ReceiptService
         if (receipt.UserId != userId)
             throw new UnauthorizedAccessException();
 
-        _fileStorage.DeleteFile(receipt.ImagePath);
         await _repository.DeleteAsync(id, userId);
     }
 

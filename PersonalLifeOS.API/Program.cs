@@ -84,9 +84,14 @@ builder.Services.AddScoped<PersonalLifeOS.Infrastructure.Services.BillService>()
 builder.Services.AddScoped<PersonalLifeOS.Infrastructure.Services.TransactionService>();
 builder.Services.AddScoped<PersonalLifeOS.Infrastructure.Services.DashboardService>();
 
-// Register file storage service
-var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads", "receipts");
-builder.Services.AddSingleton(new PersonalLifeOS.Infrastructure.FileStorage.FileStorageService(uploadsPath));
+// Register Google Drive storage service
+var driveSettings = builder.Configuration.GetSection("GoogleDrive");
+builder.Services.AddSingleton(new PersonalLifeOS.Infrastructure.FileStorage.GoogleDriveStorageService(
+    driveSettings["ClientId"]!,
+    driveSettings["ClientSecret"]!,
+    driveSettings["RefreshToken"]!,
+    driveSettings["FolderId"]!
+));
 
 // Configure CORS
 builder.Services.AddCors(options =>

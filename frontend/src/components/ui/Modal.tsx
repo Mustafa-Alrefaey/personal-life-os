@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ModalProps {
@@ -10,20 +10,11 @@ interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, children, maxWidth = '520px' }: ModalProps) {
-  const handleKey = useCallback(
-    (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
-    [onClose],
-  );
-
   useEffect(() => {
     if (!open) return;
-    document.addEventListener('keydown', handleKey);
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', handleKey);
-      document.body.style.overflow = '';
-    };
-  }, [open, handleKey]);
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
 
   if (!open) return null;
 
@@ -31,7 +22,6 @@ export function Modal({ open, onClose, title, children, maxWidth = '520px' }: Mo
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
-      onClick={onClose}
     >
       <div
         className="relative w-full rounded-2xl shadow-2xl modal-enter"
