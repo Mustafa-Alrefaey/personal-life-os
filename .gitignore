@@ -11,9 +11,11 @@
 # Uploaded files (receipt images stored locally)
 PersonalLifeOS.API/wwwroot/uploads/
 
-# Google Drive service account credentials (never commit this)
-**/*-*-*-*-*.json
+# Google Drive credentials (never commit these)
+personallifeos-*.json
+client_secret_*.json
 PersonalLifeOS.API/personallifeos-*.json
+PersonalLifeOS.API/client_secret_*.json
 
 # Sensitive config (keep appsettings.json template, ignore environment-specific overrides)
 appsettings.Development.json
